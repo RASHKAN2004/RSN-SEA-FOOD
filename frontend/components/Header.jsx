@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
   Menu,
@@ -20,7 +21,6 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      {/* Top info bar */}
       <div className="hidden bg-sea-900 text-xs text-sea-100 sm:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 lg:px-8">
           <div className="flex items-center gap-4">
@@ -54,12 +54,17 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main nav */}
       <div className="bg-gradient-to-r from-sea-700 to-sea-600 shadow-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-display text-lg font-bold text-sea-700">
-              RS
+            <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white">
+              <Image
+                src="/images/rsn_logo.jpg"
+                alt="RSN Sea Food Logo"
+                fill
+                sizes="40px"
+                className="object-contain p-1"
+              />
             </div>
             <div className="leading-tight">
               <p className="font-display text-lg font-bold text-white">
@@ -112,7 +117,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <div className="border-t border-sea-500/40 bg-sea-700 px-4 py-3 md:hidden">
             <nav className="flex flex-col gap-3 text-sm font-medium text-white">
