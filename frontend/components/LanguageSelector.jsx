@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Globe } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Architecture placeholder: hook this up to a translation provider (e.g. next-intl)
 // with /locales/en.json, /locales/si.json, /locales/ta.json when translations are ready.
@@ -12,7 +12,7 @@ const LANGUAGES = [
 ];
 
 export default function LanguageSelector() {
-  const [active, setActive] = useState('en');
+  const { language, setLanguage } = useLanguage();
 
   return (
     <div className="flex items-center gap-1 text-xs text-sea-100">
@@ -20,8 +20,10 @@ export default function LanguageSelector() {
       {LANGUAGES.map((lang, i) => (
         <span key={lang.code} className="flex items-center">
           <button
-            onClick={() => setActive(lang.code)}
-            className={active === lang.code ? 'font-semibold text-white' : 'hover:text-white'}
+            type="button"
+            onClick={() => setLanguage(lang.code)}
+            aria-pressed={language === lang.code}
+            className={language === lang.code ? 'font-semibold text-white' : 'hover:text-white'}
           >
             {lang.label}
           </button>

@@ -3,6 +3,7 @@ import { CartProvider } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FloatingButtons from '@/components/FloatingButtons';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 export const metadata = {
   title: 'Fresh Seafood Delivery in Sri Lanka | RSN Sea Food',
@@ -27,12 +28,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 font-sans text-gray-800 antialiased">
+        <LanguageProvider>
         <CartProvider>
           <Header />
           <main>{children}</main>
           <Footer />
           <FloatingButtons />
         </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

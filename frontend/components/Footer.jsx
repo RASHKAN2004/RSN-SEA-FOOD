@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { MessageCircle, Facebook, Instagram } from "lucide-react";
 import { WHATSAPP_DISPLAY } from "@/lib/whatsapp";
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="bg-sea-950 text-sea-100">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
@@ -11,8 +15,7 @@ export default function Footer() {
             RSN Sea Food
           </p>
           <p className="mt-2 text-sm text-sea-300">
-            Fresh From Kalpitiya. Quality You Can Trust. Ocean-fresh seafood
-            delivered islandwide across Sri Lanka.
+            {t('Fresh From Kalpitiya. Quality You Can Trust. Ocean-fresh seafood delivered islandwide across Sri Lanka.')}
           </p>
           <div className="mt-4 flex gap-3">
             <a
@@ -44,38 +47,38 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="font-semibold text-white">Quick Links</p>
+          <p className="font-semibold text-white">{t('Quick Links')}</p>
           <ul className="mt-3 space-y-2 text-sm text-sea-300">
             <li>
               <Link href="/" className="hover:text-white">
-                Home
+                {t('Home')}
               </Link>
             </li>
             <li>
               <Link href="/products" className="hover:text-white">
-                Products
+                {t('Products')}
               </Link>
             </li>
             <li>
               <Link href="/about" className="hover:text-white">
-                About Us
+                {t('About Us')}
               </Link>
             </li>
             <li>
               <Link href="/delivery-areas" className="hover:text-white">
-                Delivery Areas
+                {t('Delivery Areas')}
               </Link>
             </li>
             <li>
               <Link href="/faq" className="hover:text-white">
-                FAQ
+                {t('FAQ')}
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <p className="font-semibold text-white">Customer Support</p>
+          <p className="font-semibold text-white">{t('Customer Support')}</p>
           <ul className="mt-3 space-y-2 text-sm text-sea-300">
             <li className="flex items-center gap-2">
               <MessageCircle size={16} /> WhatsApp: {WHATSAPP_DISPLAY}
@@ -85,7 +88,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="font-semibold text-white">Location & Delivery</p>
+          <p className="font-semibold text-white">{t('Location & Delivery')}</p>
           <ul className="mt-3 space-y-2 text-sm text-sea-300">
             <li>Kalpitiya, Puttalam District, Sri Lanka</li>
             <li>Default District: Puttalam</li>

@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { CATEGORIES } from '@/data/products';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CategoryNav({ activeCategory }) {
+  const { t } = useLanguage();
   return (
     <div className="border-b border-sea-100 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
@@ -16,7 +18,7 @@ export default function CategoryNav({ activeCategory }) {
             }`}
           >
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sea-100 text-lg">🐟</span>
-            All
+            {t('All')}
           </Link>
           {CATEGORIES.map((cat) => (
             <Link

@@ -10,9 +10,11 @@ import FaqAccordion from "@/components/FaqAccordion";
 import { useProducts } from "@/lib/useProducts";
 import { generalOrderLink } from "@/lib/whatsapp";
 import { SRI_LANKA_DISTRICTS } from "@/lib/districts";
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function HomePage() {
   const { products } = useProducts();
+  const { t } = useLanguage();
   const featured = products.slice(0, 8);
 
   return (
@@ -24,7 +26,7 @@ export default function HomePage() {
               Fresh Seafood • Islandwide Delivery
             </span>
             <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-5xl">
-              Fresh Seafood Delivered to Your Door
+              {t('Fresh Seafood Delivered to Your Door')}
             </h1>
             <p className="mt-4 max-w-md text-sea-100">
               Convenient fresh choice from Sri Lanka&apos;s trusted seafood
@@ -32,7 +34,7 @@ export default function HomePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/products" className="btn-primary">
-                Shop Seafood
+                {t('Shop Seafood')}
               </Link>
               <a
                 href={generalOrderLink()}
@@ -40,7 +42,7 @@ export default function HomePage() {
                 rel="noreferrer"
                 className="btn-secondary"
               >
-                <MessageCircle size={18} /> Order on WhatsApp
+                <MessageCircle size={18} /> {t('Order on WhatsApp')}
               </a>
             </div>
             <div className="mt-8 flex flex-wrap gap-6 text-sm text-sea-100">
@@ -70,13 +72,13 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h2 className="section-title">Fresh Catch This Week</h2>
+            <h2 className="section-title">{t('Fresh Catch This Week')}</h2>
             <p className="mt-1 text-sm text-gray-500">
               Hand-picked daily from Kalpitiya&apos;s coastal waters.
             </p>
           </div>
           <Link href="/products" className="btn-outline hidden sm:inline-flex">
-            View All
+            {t('View All')}
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -88,7 +90,7 @@ export default function HomePage() {
           href="/products"
           className="btn-outline mt-6 flex w-full items-center justify-center sm:hidden"
         >
-          View All Products
+          {t('View All Products')}
         </Link>
       </section>
 
@@ -97,7 +99,7 @@ export default function HomePage() {
       <section className="bg-sea-50 py-14">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <h2 className="section-title text-center">
-            Islandwide Seafood Delivery
+            {t('Islandwide Seafood Delivery')}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-center text-sm text-gray-500">
             Delivery available across all 25 districts of Sri Lanka — with
@@ -116,7 +118,7 @@ export default function HomePage() {
           </div>
           <div className="mt-6 text-center">
             <Link href="/delivery-areas" className="btn-primary">
-              See All 25 Districts
+              {t('See All 25 Districts')}
             </Link>
           </div>
         </div>
@@ -124,7 +126,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
         <h2 className="section-title text-center">
-          Frequently Asked Questions
+          {t('Frequently Asked Questions')}
         </h2>
         <div className="mx-auto mt-6 max-w-2xl">
           <FaqAccordion />
