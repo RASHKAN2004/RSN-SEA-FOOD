@@ -1,3 +1,4 @@
+//ignore files for the project
 # Environment variables
 backend/.env
 frontend/.env
