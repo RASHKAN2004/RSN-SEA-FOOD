@@ -52,17 +52,15 @@ export default function HomePage() {
               </span>
             </div>
           </div>
-          <div className="relative flex h-64 w-full items-center justify-center overflow-hidden rounded-3xl bg-white/10 p-3 shadow-2xl backdrop-blur-sm sm:h-80 sm:p-4 lg:h-96">
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-sea-900/20">
-              <Image
-                src="/images/products/transport.jpg"
-                alt="Fresh seafood catch ready for delivery"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-contain"
-              />
-            </div>
+          <div className="relative h-64 w-full overflow-hidden rounded-3xl shadow-2xl sm:h-80 lg:h-96">
+            <Image
+              src="/images/products/transport.jpg"
+              alt="Fresh seafood catch ready for delivery"
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover object-center"
+            />
           </div>
         </div>
       </section>
