@@ -27,16 +27,16 @@ export default function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 lg:px-8">
           <div className="flex items-center gap-4">
             <Link href="/faq" className="hover:text-white">
-              {t('Support')}
+              {t("Support")}
             </Link>
             <Link href="/faq" className="hover:text-white">
-              {t('FAQ')}
+              {t("FAQ")}
             </Link>
             <Link href="/delivery-areas" className="hover:text-white">
-              {t('Delivery Areas')}
+              {t("Delivery Areas")}
             </Link>
             <Link href="/#inquiry" className="hover:text-white">
-              {t('Submit Your Inquiry')}
+              {t("Submit Your Inquiry")}
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -49,7 +49,7 @@ export default function Header() {
               <MessageCircle size={14} /> {WHATSAPP_DISPLAY}
             </a>
             <span className="flex items-center gap-1 text-sea-200">
-              <Truck size={14} /> {t('Delivery Available')}
+              <Truck size={14} /> {t("Delivery Available")}
             </span>
             <LanguageSelector />
           </div>
@@ -72,31 +72,33 @@ export default function Header() {
               <p className="font-display text-lg font-bold text-white">
                 RSN Sea Food
               </p>
-              <p className="text-[11px] text-sea-100">{t('Kalpitiya, Sri Lanka')}</p>
+              <p className="text-[11px] text-sea-100">
+                {t("Kalpitiya, Sri Lanka")}
+              </p>
             </div>
           </Link>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-white md:flex">
             <Link href="/" className="hover:text-coral-200">
-              {t('Home')}
+              {t("Home")}
             </Link>
             <Link href="/products" className="hover:text-coral-200">
-              {t('Products')}
+              {t("Products")}
             </Link>
             <Link href="/delivery-areas" className="hover:text-coral-200">
-              {t('Delivery Areas')}
+              {t("Delivery Areas")}
             </Link>
             <Link href="/about" className="hover:text-coral-200">
-              {t('About Us')}
+              {t("About Us")}
             </Link>
             <Link href="/faq" className="hover:text-coral-200">
-              {t('FAQ')}
+              {t("FAQ")}
             </Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <button className="hidden items-center gap-1 text-sm text-white hover:text-coral-200 sm:flex">
-              <User size={18} /> {t('Sign In')}
+              <User size={18} /> {t("Sign In")}
             </button>
             <Link
               href="/cart"
@@ -123,19 +125,19 @@ export default function Header() {
           <div className="border-t border-sea-500/40 bg-sea-700 px-4 py-3 md:hidden">
             <nav className="flex flex-col gap-3 text-sm font-medium text-white">
               <Link href="/" onClick={() => setMenuOpen(false)}>
-                {t('Home')}
+                {t("Home")}
               </Link>
               <Link href="/products" onClick={() => setMenuOpen(false)}>
-                {t('Products')}
+                {t("Products")}
               </Link>
               <Link href="/delivery-areas" onClick={() => setMenuOpen(false)}>
-                {t('Delivery Areas')}
+                {t("Delivery Areas")}
               </Link>
               <Link href="/about" onClick={() => setMenuOpen(false)}>
-                {t('About Us')}
+                {t("About Us")}
               </Link>
               <Link href="/faq" onClick={() => setMenuOpen(false)}>
-                {t('FAQ')}
+                {t("FAQ")}
               </Link>
               <a
                 href={generalOrderLink()}
