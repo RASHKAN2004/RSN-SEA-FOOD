@@ -22,8 +22,8 @@ export default function Header() {
   const { t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-40 w-full">
-      <div className="hidden bg-sea-900 text-xs text-sea-100 sm:block">
+    <header className="sticky top-0 z-40 w-full border-b border-ink/10">
+      <div className="hidden bg-ink text-xs text-tide sm:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 lg:px-8">
           <div className="flex items-center gap-4">
             <Link href="/faq" className="hover:text-white">
@@ -56,7 +56,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-sea-700 to-sea-600 shadow-md">
+      <div className="bg-ink shadow-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white">
@@ -69,29 +69,44 @@ export default function Header() {
               />
             </div>
             <div className="leading-tight">
-              <p className="font-display text-lg font-bold text-white">
+              <p className="font-display text-2xl font-bold leading-none text-white">
                 RSN Sea Food
               </p>
-              <p className="text-[11px] text-sea-100">
+              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-tide">
                 {t("Kalpitiya, Sri Lanka")}
               </p>
             </div>
           </Link>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-white md:flex">
-            <Link href="/" className="hover:text-coral-200">
+            <Link
+              href="/"
+              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+            >
               {t("Home")}
             </Link>
-            <Link href="/products" className="hover:text-coral-200">
+            <Link
+              href="/products"
+              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+            >
               {t("Products")}
             </Link>
-            <Link href="/delivery-areas" className="hover:text-coral-200">
+            <Link
+              href="/delivery-areas"
+              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+            >
               {t("Delivery Areas")}
             </Link>
-            <Link href="/about" className="hover:text-coral-200">
+            <Link
+              href="/about"
+              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+            >
               {t("About Us")}
             </Link>
-            <Link href="/faq" className="hover:text-coral-200">
+            <Link
+              href="/faq"
+              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+            >
               {t("FAQ")}
             </Link>
           </nav>
@@ -122,7 +137,7 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-sea-500/40 bg-sea-700 px-4 py-3 md:hidden">
+          <div className="border-t border-white/10 bg-ink px-4 py-3 md:hidden">
             <nav className="flex flex-col gap-3 text-sm font-medium text-white">
               <Link href="/" onClick={() => setMenuOpen(false)}>
                 {t("Home")}

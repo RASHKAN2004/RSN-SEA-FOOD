@@ -2,12 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap");
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   overflow-x: hidden;
+  background: #f5f0e8;
 }
 
 ::-webkit-scrollbar {
@@ -29,18 +32,55 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-coral-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-coral-600 active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-none bg-coral-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-coral-600 active:scale-95;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white hover:text-sea-700 active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-white px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white hover:text-ink active:scale-95;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-sea-600 px-4 py-2 text-sm font-semibold text-sea-700 transition hover:bg-sea-50 active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-ink px-4 py-2 text-sm font-semibold text-ink transition hover:bg-ink hover:text-white active:scale-95;
   }
   .card {
-    @apply rounded-2xl bg-white shadow-card transition hover:-translate-y-1 hover:shadow-floating;
+    @apply bg-white shadow-card transition hover:-translate-y-1 hover:shadow-floating;
   }
   .section-title {
     @apply font-display text-2xl font-bold text-sea-900 sm:text-3xl;
   }
+}
+
+.section-rule::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 3px;
+  margin-bottom: 1rem;
+  background: #fd6612;
+}
+
+.product-card {
+  border: 1px solid rgba(16, 44, 50, 0.08);
+}
+
+.product-image-frame {
+  aspect-ratio: 4 / 3;
+  isolation: isolate;
+}
+
+.product-image {
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.product-image-shade {
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 44, 50, 0.08),
+    transparent 38%,
+    rgba(16, 44, 50, 0.18)
+  );
+  pointer-events: none;
+}
+
+.product-image-frame > span {
+  z-index: 2;
 }

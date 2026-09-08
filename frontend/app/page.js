@@ -10,7 +10,7 @@ import FaqAccordion from "@/components/FaqAccordion";
 import { useProducts } from "@/lib/useProducts";
 import { generalOrderLink } from "@/lib/whatsapp";
 import { SRI_LANKA_DISTRICTS } from "@/lib/districts";
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -19,22 +19,23 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-sea-800 via-sea-700 to-sea-600">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:px-8 lg:py-20">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-sea-100">
-              Fresh Seafood • Islandwide Delivery
+      <section className="relative overflow-hidden bg-ink">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-tide/20" />
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-16 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-24">
+          <div className="relative z-10">
+            <span className="inline-flex items-center gap-2 border-l-2 border-coral-400 pl-3 text-xs font-bold uppercase tracking-[0.2em] text-tide">
+              The Kalpitiya catch
             </span>
-            <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-5xl">
-              {t('Fresh Seafood Delivered to Your Door')}
+            <h1 className="mt-5 max-w-xl font-display text-5xl font-semibold leading-[0.92] text-white sm:text-7xl">
+              {t("Fresh Seafood Delivered to Your Door")}
             </h1>
-            <p className="mt-4 max-w-md text-sea-100">
-              Convenient fresh choice from Sri Lanka&apos;s trusted seafood
-              delivery service, based in Kalpitiya, Puttalam District.
+            <p className="mt-6 max-w-md text-base leading-7 text-tide">
+              A better kind of seafood delivery. Carefully selected from Sri
+              Lanka&apos;s coast, cleaned with care, and sent to your kitchen.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/products" className="btn-primary">
-                {t('Shop Seafood')}
+                {t("Shop Seafood")}
               </Link>
               <a
                 href={generalOrderLink()}
@@ -42,10 +43,10 @@ export default function HomePage() {
                 rel="noreferrer"
                 className="btn-secondary"
               >
-                <MessageCircle size={18} /> {t('Order on WhatsApp')}
+                <MessageCircle size={18} /> {t("Order on WhatsApp")}
               </a>
             </div>
-            <div className="mt-8 flex flex-wrap gap-6 text-sm text-sea-100">
+            <div className="mt-10 flex flex-wrap gap-6 text-sm text-tide">
               <span className="flex items-center gap-2">
                 <MapPin size={16} /> Serving Sri Lanka
               </span>
@@ -54,7 +55,7 @@ export default function HomePage() {
               </span>
             </div>
           </div>
-          <div className="relative h-64 w-full overflow-hidden rounded-3xl shadow-2xl sm:h-80 lg:h-96">
+          <div className="relative h-[22rem] w-full overflow-hidden border-8 border-shell/10 shadow-2xl sm:h-[28rem] lg:-mr-16 lg:h-[34rem]">
             <Image
               src="/images/products/transport.jpg"
               alt="Fresh seafood catch ready for delivery"
@@ -63,22 +64,33 @@ export default function HomePage() {
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover object-center"
             />
+            <div className="absolute bottom-5 left-5 bg-shell px-4 py-3 text-ink shadow-xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em]">
+                From coast to table
+              </p>
+              <p className="mt-1 font-display text-2xl font-bold">
+                Freshness, handled.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       <CategoryNav />
 
-      <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
-        <div className="mb-6 flex items-end justify-between">
-          <div>
-            <h2 className="section-title">{t('Fresh Catch This Week')}</h2>
+      <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <div className="mb-8 flex items-end justify-between">
+          <div className="section-rule">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-coral-600">
+              Our selection
+            </p>
+            <h2 className="section-title mt-2">{t("Fresh Catch This Week")}</h2>
             <p className="mt-1 text-sm text-gray-500">
               Hand-picked daily from Kalpitiya&apos;s coastal waters.
             </p>
           </div>
           <Link href="/products" className="btn-outline hidden sm:inline-flex">
-            {t('View All')}
+            {t("View All")}
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -90,16 +102,19 @@ export default function HomePage() {
           href="/products"
           className="btn-outline mt-6 flex w-full items-center justify-center sm:hidden"
         >
-          {t('View All Products')}
+          {t("View All Products")}
         </Link>
       </section>
 
       <TrustSection />
 
-      <section className="bg-sea-50 py-14">
+      <section className="bg-tide py-16">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <h2 className="section-title text-center">
-            {t('Islandwide Seafood Delivery')}
+          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-coral-600">
+            We bring the coast closer
+          </p>
+          <h2 className="section-title mt-3 text-center">
+            {t("Islandwide Seafood Delivery")}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-center text-sm text-gray-500">
             Delivery available across all 25 districts of Sri Lanka — with
@@ -118,7 +133,7 @@ export default function HomePage() {
           </div>
           <div className="mt-6 text-center">
             <Link href="/delivery-areas" className="btn-primary">
-              {t('See All 25 Districts')}
+              {t("See All 25 Districts")}
             </Link>
           </div>
         </div>
@@ -126,7 +141,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
         <h2 className="section-title text-center">
-          {t('Frequently Asked Questions')}
+          {t("Frequently Asked Questions")}
         </h2>
         <div className="mx-auto mt-6 max-w-2xl">
           <FaqAccordion />
