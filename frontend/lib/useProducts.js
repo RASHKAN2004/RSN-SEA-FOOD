@@ -1,11 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { api, resolveImageUrl } from '@/lib/api';
-import { PRODUCTS as LOCAL_PRODUCTS } from '@/data/products';
+import { useEffect, useState } from "react";
+import { api, resolveImageUrl } from "@/lib/api";
+import { PRODUCTS as LOCAL_PRODUCTS } from "@/data/products";
 
 function normalize(list) {
-  return list.map((p) => ({ ...p, image: resolveImageUrl(p.image) }));
+  return list.map((p) => ({
+    ...p,
+    image: resolveImageUrl(p.image),
+    gallery: p.gallery?.map(resolveImageUrl),
+  }));
 }
 
 // Tries the live API first (so admin-added products/photos show up); falls back
@@ -13,7 +17,7 @@ function normalize(list) {
 export function useProducts(params = {}) {
   const [products, setProducts] = useState(normalize(LOCAL_PRODUCTS));
   const [loading, setLoading] = useState(true);
-  const [source, setSource] = useState('local');
+  const [source, setSource] = useState("local");
 
   useEffect(() => {
     let cancelled = false;
@@ -24,7 +28,7 @@ export function useProducts(params = {}) {
         if (cancelled) return;
         if (res.products && res.products.length > 0) {
           setProducts(normalize(res.products));
-          setSource('api');
+          setSource("api");
         }
       })
       .catch(() => {
