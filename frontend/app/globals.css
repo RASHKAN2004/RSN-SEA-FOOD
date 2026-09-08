@@ -11,6 +11,10 @@ html {
 body {
   overflow-x: hidden;
   background: #f5f0e8;
+  color: #102c32;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
 }
 
 ::-webkit-scrollbar {
@@ -83,4 +87,73 @@ body {
 
 .product-image-frame > span {
   z-index: 2;
+}
+
+body.dark-mood {
+  background: #0c1b20;
+  color: #e5efeb;
+}
+
+body.dark-mood main,
+body.dark-mood footer {
+  background: #0c1b20;
+}
+
+body.dark-mood .bg-white,
+body.dark-mood .bg-gray-50,
+body.dark-mood .bg-shell {
+  background-color: #142b31;
+}
+
+body.dark-mood .bg-tide,
+body.dark-mood .bg-sea-50 {
+  background-color: #10272c;
+}
+
+body.dark-mood .text-ink,
+body.dark-mood .text-sea-900,
+body.dark-mood .text-sea-700,
+body.dark-mood .text-gray-800,
+body.dark-mood .text-gray-700 {
+  color: #e5efeb;
+}
+
+body.dark-mood .text-gray-500,
+body.dark-mood .text-gray-400 {
+  color: #9ab2b0;
+}
+
+body.dark-mood .border-gray-300,
+body.dark-mood .border-sea-100,
+body.dark-mood .border-ink\/10 {
+  border-color: rgba(190, 220, 213, 0.2);
+}
+
+body.dark-mood input,
+body.dark-mood textarea,
+body.dark-mood select {
+  color: #e5efeb;
+  background-color: #142b31;
+  border-color: rgba(190, 220, 213, 0.28);
+}
+
+body.dark-mood input::placeholder,
+body.dark-mood textarea::placeholder {
+  color: #76918f;
+}
+
+body.dark-mood .product-card,
+body.dark-mood .card {
+  border-color: rgba(190, 220, 213, 0.14);
+  background: #142b31;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mood .product-image-shade {
+  background: linear-gradient(
+    180deg,
+    rgba(4, 17, 20, 0.04),
+    transparent 38%,
+    rgba(4, 17, 20, 0.34)
+  );
 }

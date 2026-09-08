@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Menu,
   X,
@@ -10,6 +10,8 @@ import {
   User,
   MessageCircle,
   Truck,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { WHATSAPP_DISPLAY, generalOrderLink } from "@/lib/whatsapp";
@@ -18,8 +20,24 @@ import { useLanguage } from "@/context/LanguageContext";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [darkMood, setDarkMood] = useState(false);
   const { count } = useCart();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const savedMood = window.localStorage.getItem("rsn-dark-mood") === "true";
+    setDarkMood(savedMood);
+    document.body.classList.toggle("dark-mood", savedMood);
+  }, []);
+
+  function toggleDarkMood() {
+    setDarkMood((current) => {
+      const nextMood = !current;
+      window.localStorage.setItem("rsn-dark-mood", String(nextMood));
+      document.body.classList.toggle("dark-mood", nextMood);
+      return nextMood;
+    });
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-ink/10">
@@ -112,6 +130,17 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleDarkMood}
+              className="flex h-9 w-9 items-center justify-center border border-white/25 text-tide transition hover:border-coral-300 hover:text-coral-200"
+              aria-label={
+                darkMood ? "Switch to light mood" : "Switch to dark mood"
+              }
+              title={darkMood ? "Light mood" : "Dark mood"}
+            >
+              {darkMood ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
             <button className="hidden items-center gap-1 text-sm text-white hover:text-coral-200 sm:flex">
               <User size={18} /> {t("Sign In")}
             </button>
