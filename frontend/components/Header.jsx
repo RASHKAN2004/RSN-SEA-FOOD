@@ -40,20 +40,23 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-ink/10">
-      <div className="hidden bg-ink text-xs text-tide sm:block">
+    <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#061d22]/90 backdrop-blur-xl">
+      <div className="hidden bg-[#0a2b31] text-xs text-tide sm:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 lg:px-8">
           <div className="flex items-center gap-4">
-            <Link href="/faq" className="hover:text-white">
+            <Link href="/faq" className="transition hover:text-white">
               {t("Support")}
             </Link>
-            <Link href="/faq" className="hover:text-white">
+            <Link href="/faq" className="transition hover:text-white">
               {t("FAQ")}
             </Link>
-            <Link href="/delivery-areas" className="hover:text-white">
+            <Link
+              href="/delivery-areas"
+              className="transition hover:text-white"
+            >
               {t("Delivery Areas")}
             </Link>
-            <Link href="/#inquiry" className="hover:text-white">
+            <Link href="/#inquiry" className="transition hover:text-white">
               {t("Submit Your Inquiry")}
             </Link>
           </div>
@@ -62,7 +65,7 @@ export default function Header() {
               href={generalOrderLink()}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 hover:text-white"
+              className="flex items-center gap-1 transition hover:text-white"
             >
               <MessageCircle size={14} /> {WHATSAPP_DISPLAY}
             </a>
@@ -74,15 +77,15 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="bg-ink shadow-md">
+      <div className="shadow-[0_12px_40px_rgba(0,0,0,0.15)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white">
+            <div className="relative h-11 w-11 overflow-hidden rounded-full border border-white/15 bg-white shadow-lg">
               <Image
                 src="/images/rsn_logo.jpg"
                 alt="RSN Sea Food Logo"
                 fill
-                sizes="40px"
+                sizes="44px"
                 className="object-contain p-1"
               />
             </div>
@@ -99,31 +102,31 @@ export default function Header() {
           <nav className="hidden items-center gap-6 text-sm font-medium text-white md:flex">
             <Link
               href="/"
-              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+              className="border-b border-transparent py-2 transition hover:border-coral-400 hover:text-coral-200"
             >
               {t("Home")}
             </Link>
             <Link
               href="/products"
-              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+              className="border-b border-transparent py-2 transition hover:border-coral-400 hover:text-coral-200"
             >
               {t("Products")}
             </Link>
             <Link
               href="/delivery-areas"
-              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+              className="border-b border-transparent py-2 transition hover:border-coral-400 hover:text-coral-200"
             >
               {t("Delivery Areas")}
             </Link>
             <Link
               href="/about"
-              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+              className="border-b border-transparent py-2 transition hover:border-coral-400 hover:text-coral-200"
             >
               {t("About Us")}
             </Link>
             <Link
               href="/faq"
-              className="border-b border-transparent py-2 hover:border-coral-400 hover:text-coral-200"
+              className="border-b border-transparent py-2 transition hover:border-coral-400 hover:text-coral-200"
             >
               {t("FAQ")}
             </Link>
@@ -133,7 +136,7 @@ export default function Header() {
             <button
               type="button"
               onClick={toggleDarkMood}
-              className="flex h-9 w-9 items-center justify-center border border-white/25 text-tide transition hover:border-coral-300 hover:text-coral-200"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-tide transition hover:border-coral-300 hover:text-coral-200"
               aria-label={
                 darkMood ? "Switch to light mood" : "Switch to dark mood"
               }
@@ -141,12 +144,12 @@ export default function Header() {
             >
               {darkMood ? <Sun size={17} /> : <Moon size={17} />}
             </button>
-            <button className="hidden items-center gap-1 text-sm text-white hover:text-coral-200 sm:flex">
+            <button className="hidden items-center gap-1 text-sm text-white transition hover:text-coral-200 sm:flex">
               <User size={18} /> {t("Sign In")}
             </button>
             <Link
               href="/cart"
-              className="relative flex items-center text-white hover:text-coral-200"
+              className="relative flex items-center text-white transition hover:text-coral-200"
             >
               <ShoppingCart size={22} />
               {count > 0 && (
@@ -166,7 +169,7 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-white/10 bg-ink px-4 py-3 md:hidden">
+          <div className="border-t border-white/10 bg-[#061d22] px-4 py-3 md:hidden">
             <nav className="flex flex-col gap-3 text-sm font-medium text-white">
               <Link href="/" onClick={() => setMenuOpen(false)}>
                 {t("Home")}
