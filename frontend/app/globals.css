@@ -60,13 +60,19 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/20 bg-white/80 px-5 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:-translate-y-0.5 hover:bg-ink hover:text-white active:scale-95;
   }
   .card {
-    @apply rounded-3xl bg-white shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-floating;
+    @apply rounded-[1.6rem] border border-slate-200/80 bg-white/80 shadow-[0_18px_40px_rgba(15,40,48,0.08)] backdrop-blur-sm transition duration-200 hover:-translate-y-1 hover:border-coral-200 hover:shadow-[0_22px_48px_rgba(15,40,48,0.12)];
   }
   .section-title {
     @apply font-display text-3xl font-bold text-sea-900 sm:text-4xl;
   }
   .section-kicker {
     @apply text-xs font-bold uppercase tracking-[0.22em] text-coral-600;
+  }
+  .glass-panel {
+    @apply rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-md;
+  }
+  .stat-card {
+    @apply rounded-2xl border border-white/10 bg-white/5 p-3 text-left shadow-[0_12px_30px_rgba(0,0,0,0.08)];
   }
 }
 

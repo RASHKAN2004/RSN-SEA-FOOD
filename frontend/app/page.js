@@ -73,7 +73,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-[#06272b] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(117,213,204,0.28),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(247,106,43,0.18),transparent_28%)]" />
         <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute bottom-0 left-8 h-40 w-40 rounded-full border border-coral-400/30" />
+        <div className="pointer-events-none absolute bottom-8 left-12 h-36 w-36 rounded-full border border-coral-400/30" />
 
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
@@ -84,8 +84,8 @@ export default function HomePage() {
               {t("Fresh Seafood Delivered to Your Door")}
             </h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-slate-200">
-              A better kind of seafood delivery. Carefully selected from Sri
-              Lanka&apos;s coast, cleaned with care, and sent to your kitchen.
+              A cleaner, faster way to buy premium Sri Lankan seafood with
+              reliable islandwide delivery and fresh daily selection.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -102,25 +102,25 @@ export default function HomePage() {
               </a>
             </div>
 
-            <div className="mt-8 grid max-w-md grid-cols-2 gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3 backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">
+            <div className="mt-8 grid max-w-md grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="stat-card">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   Fresh
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">Daily</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3 backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">
+              <div className="stat-card">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   From
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">Kalpitiya</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3 backdrop-blur-sm sm:col-span-1 col-span-2">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">
+              <div className="stat-card col-span-2 sm:col-span-1">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   Delivery
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">
-                  25 districts
+                  25 Districts
                 </p>
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function HomePage() {
               className="object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#06272b] via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
+            <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-coral-200">
                 From coast to table
               </p>
