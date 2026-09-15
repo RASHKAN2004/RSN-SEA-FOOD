@@ -1,16 +1,74 @@
-# RSN Sea Food — Full-Stack E-Commerce Platform
+﻿# RSN Sea Food
 
-Fresh seafood delivery e-commerce site for **RSN Sea Food**, Kalpitiya (Puttalam District), Sri Lanka.
+Fresh seafood delivery e-commerce platform for RSN Sea Food, based in Kalpitiya, Puttalam District, Sri Lanka.
+
+This project includes a customer storefront, shopping cart, delivery-area logic, WhatsApp ordering, and an admin panel for managing the product catalog.
+
+---
+
+## Overview
+
+RSN Sea Food is a seafood business website built for online ordering and local delivery across Sri Lanka. The app supports product browsing, district-based delivery pricing, WhatsApp checkout, and admin product management.
+
+The project is split into:
+
+- Frontend: Next.js storefront
+- Backend: Express API with MongoDB
+- Admin: secure product management dashboard
+
+---
+
+## Business Details
+
+| Setting | Value |
+| --- | --- |
+| Business Name | RSN Sea Food |
+| Location | Kalpitiya, Puttalam District, Sri Lanka |
+| Default Delivery District | Puttalam |
+| Delivery Coverage | All 25 Sri Lankan districts |
+| WhatsApp Number (Display) | 0750519450 |
+| WhatsApp Number (International Format) | 94750519450 |
+
+Configuration files that control the business values:
+
+- `frontend/lib/whatsapp.js`
+- `frontend/lib/districts.js`
+- `backend/config/districts.js`
+
+---
+
+## Features
+
+### Customer Features
+
+- Responsive seafood storefront
+- Product catalog with categories and local names
+- Product detail pages with image gallery and quantity controls
+- District-based delivery area selection
+- Shopping cart with totals and delivery fee logic
+- Cash on Delivery, simulated card payment, and WhatsApp ordering
+- Inquiry form and FAQ section
+- Floating WhatsApp contact button
+- SEO and mobile-friendly layout
+
+### Admin Features
+
+- Admin login and JWT-based authentication
+- Product listing dashboard
+- Add, edit, and delete products
+- Product photo upload
+- Price, description, category, and local name management
+- MongoDB-backed product updates
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** Next.js 15, React 19, App Router
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Mongoose
-- **Authentication:** JWT
-- **Styling:** Tailwind CSS
+- Frontend: Next.js 15, React 19, Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: MongoDB with Mongoose
+- Authentication: JWT + bcrypt
+- Security: Helmet, rate limiting, protected routes
 
 ---
 
@@ -18,578 +76,38 @@ Fresh seafood delivery e-commerce site for **RSN Sea Food**, Kalpitiya (Puttalam
 
 ```text
 rsn-seafood/
-├── backend/     Node.js + Express + MongoDB REST API
-└── frontend/    Next.js + Tailwind CSS storefront
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── seed/
+│   ├── uploads/
+│   ├── .env.example
+│   ├── package.json
+│   └── server.js
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── context/
+│   ├── data/
+│   ├── lib/
+│   ├── public/
+│   ├── package.json
+│   └── next.config.js
+├── README.md
+├── vercel.json
+└── package.json
 ```
 
 ---
 
-## 1. Business Configuration
+## Quick Start
 
-| Setting                              | Value                                   |
-| ------------------------------------ | --------------------------------------- |
-| **Business**                         | RSN Sea Food                            |
-| **Location**                         | Kalpitiya, Puttalam District, Sri Lanka |
-| **Default delivery district**        | **Puttalam**                            |
-| **Delivery coverage**                | All 25 Sri Lankan districts             |
-| **WhatsApp (display)**               | 0750519450                              |
-| **WhatsApp (international / wa.me)** | 94750519450                             |
-
-WhatsApp links, the district dropdown, and delivery-fee logic are driven from:
-
-- `frontend/lib/whatsapp.js`
-- `frontend/lib/districts.js`
-- `backend/config/districts.js`
-
-Update these files if any of the above business values change.
-
----
-
-## 2. Backend Setup
+### 1. Backend Setup
 
 Open the backend folder:
-
-```bash
-cd backend
-```
-
-Create the environment file:
-
-```bash
-cp .env.example .env
-```
-
-Then open `.env` and configure the required environment variables such as:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secure_jwt_secret
-PORT=5000
-```
-
-Install the backend dependencies:
-
-```bash
-npm install
-```
-
-Seed the starter product catalog:
-
-```bash
-npm run seed
-```
-
-Start the backend development server:
-
-```bash
-npm run dev
-```
-
-The backend API will run on:
-
-```text
-http://localhost:5000
-```
-
----
-
-## Backend API Endpoints
-
-| Method | Endpoint              | Description                       |
-| ------ | --------------------- | --------------------------------- |
-| `GET`  | `/api/health`         | Health check                      |
-| `GET`  | `/api/products`       | List, filter, and search products |
-| `GET`  | `/api/products/:slug` | Get product details               |
-| `POST` | `/api/auth/register`  | Register a new user               |
-| `POST` | `/api/auth/login`     | Login using JWT authentication    |
-| `POST` | `/api/orders`         | Place an order                    |
-| `POST` | `/api/inquiries`      | Submit an inquiry                 |
-| `GET`  | `/api/meta/districts` | Get Sri Lankan districts          |
-| `GET`  | `/api/meta/business`  | Get business information          |
-
-### Supported Order Methods
-
-- Cash on Delivery
-- Simulated Card Payment
-- WhatsApp Manual Ordering
-
----
-
-## 3. Frontend Setup
-
-Open a new terminal and go to the frontend folder:
-
-```bash
-cd frontend
-```
-
-Install the frontend dependencies:
-
-```bash
-npm install
-```
-
-If your backend API is running on `localhost:5000`, no additional configuration is required.
-
-If your API is hosted somewhere else, create:
-
-```text
-frontend/.env.local
-```
-
-Add:
-
-```env
-NEXT_PUBLIC_API_URL=https://your-api.example.com/api
-NEXT_PUBLIC_WHATSAPP_NUMBER=94750519450
-```
-
-Start the frontend development server:
-
-```bash
-npm run dev
-```
-
-The frontend will run on:
-
-```text
-http://localhost:3000
-```
-
----
-
-## Local Product Catalog
-
-The frontend includes a local product catalog located at:
-
-```text
-frontend/data/products.js
-```
-
-The local catalog mirrors the backend seed data so that the storefront can render correctly even before the API is connected.
-
-The frontend communicates with the backend API through:
-
-```text
-frontend/lib/api.js
-```
-
-Checkout and inquiry forms use the live API when the backend is available.
-
----
-
-## 4. Admin Panel — Product Photos & Details
-
-An admin panel is included in the application for managing products.
-
-Admin panel URL:
-
-```text
-http://localhost:3000/admin
-```
-
-The admin panel allows authorized administrators to manage:
-
-- Product photos
-- Product names
-- Local names
-- Categories
-- Prices
-- Descriptions
-- Product listings
-
----
-
-## First-Time Admin Setup
-
-Open the backend folder:
-
-```bash
-cd backend
-```
-
-Run the admin seed command:
-
-```bash
-npm run seed:admin
-```
-
-This creates an admin account using the values configured in:
-
-```text
-backend/.env
-```
-
-### Admin Credentials
-
-| Field        | Default                     |
-| ------------ | --------------------------- |
-| **Email**    | `mmohamedraskhan@gmail.com` |
-| **Password** | Configured in `.env`        |
-
-> **Security:** Change the admin credentials before deploying the application to production.
-
-You can configure your own admin credentials by adding the following to:
-
-```text
-backend/.env
-```
-
-```env
-ADMIN_EMAIL=youremail@example.com
-ADMIN_PASSWORD=YourStrongPassword123
-```
-
----
-
-## Using the Admin Panel
-
-### Step 1 — Open Admin Login
-
-Go to:
-
-```text
-http://localhost:3000/admin/login
-```
-
-### Step 2 — Sign In
-
-Enter your admin email and password.
-
-### Step 3 — Product Dashboard
-
-After successful login, you will see the product dashboard.
-
-### Step 4 — Add Product
-
-Click:
-
-```text
-Add Product
-```
-
-Enter:
-
-- Product name
-- Local name
-- Category
-- Price
-- Description
-- Product photo
-
-### Step 5 — Edit Product
-
-Click the pencil/edit icon next to a product.
-
-You can update:
-
-- Product name
-- Local name
-- Category
-- Price
-- Description
-- Product image
-
-### Step 6 — Delete Product
-
-Click the trash/delete icon to remove a product.
-
-### Step 7 — Database Update
-
-Product changes are saved directly to MongoDB.
-
-Updated products will appear on the storefront.
-
----
-
-## Product Image Storage
-
-Uploaded product photos are stored in:
-
-```text
-backend/uploads/products/
-```
-
-They are served through:
-
-```text
-http://localhost:5000/uploads/products/<filename>
-```
-
----
-
-## 5. Replacing Product Images
-
-The starter product catalog includes seafood product photography in:
-
-```text
-frontend/public/images/products/
-```
-
-There are two ways to replace product images.
-
-### Method 1 — Replace the Existing Image
-
-Replace the existing image with another image using the same filename.
-
-### Method 2 — Use the Admin Panel
-
-The recommended method is to upload new product photos directly through the Admin Panel.
-
-This allows administrators to update product images without modifying the source code.
-
----
-
-## 6. Feature Checklist
-
-### Product Catalog
-
-- [x] Product catalog
-- [x] Local product names
-- [x] Sinhala product names
-- [x] Tamil product names
-- [x] Minimum quantity
-- [x] Starting price
-- [x] Product descriptions
-- [x] Product images
-- [x] Product sizes
-- [x] Product categories
-- [x] 14 seafood categories
-- [x] Horizontally scrollable category navigation
-
-### Product Details
-
-- [x] Product detail page
-- [x] Product image gallery
-- [x] Product size selection
-- [x] Quantity selector
-- [x] District selector
-- [x] Starting price display
-- [x] Product availability information
-
-### Shopping Cart
-
-- [x] Shopping cart
-- [x] Add to cart
-- [x] Remove from cart
-- [x] Increase quantity
-- [x] Decrease quantity
-- [x] LocalStorage cart persistence
-- [x] Cart total calculation
-- [x] Delivery fee calculation
-- [x] Full-cart WhatsApp ordering
-
-### Checkout
-
-- [x] Sri Lankan address form
-- [x] Customer name
-- [x] Phone number
-- [x] Delivery address
-- [x] District selection
-- [x] All 25 Sri Lankan districts
-- [x] Puttalam as the default district
-- [x] Cash on Delivery
-- [x] Simulated card payment
-- [x] WhatsApp manual ordering
-
-### WhatsApp Ordering
-
-- [x] General WhatsApp ordering
-- [x] Per-product WhatsApp ordering
-- [x] Full-cart WhatsApp ordering
-- [x] Pre-filled WhatsApp messages
-- [x] WhatsApp number configuration
-- [x] Floating WhatsApp button
-
-WhatsApp number:
-
-```text
-94750519450
-```
-
----
-
-## Customer Features
-
-- [x] Floating WhatsApp button
-- [x] Submit Your Inquiry button
-- [x] Inquiry modal
-- [x] Inquiry form
-- [x] FAQ accordion
-- [x] 10 FAQ questions
-- [x] Delivery Areas page
-- [x] All 25 Sri Lankan districts
-- [x] Puttalam highlighted as default district
-- [x] Trust and quality section
-- [x] Four customer benefits
-- [x] Footer
-- [x] Quick links
-- [x] Support information
-- [x] Business location
-- [x] Social media placeholders
-
----
-
-## Responsive Design
-
-- [x] Mobile-responsive design
-- [x] Responsive header
-- [x] Hamburger menu
-- [x] Mobile navigation
-- [x] Responsive product cards
-- [x] Responsive product details
-- [x] Responsive shopping cart
-- [x] Responsive checkout
-- [x] Mobile-friendly forms
-- [x] No horizontal overflow
-
----
-
-## Language Support
-
-- [x] English language selector
-- [x] Sinhala language scaffold
-- [x] Tamil language scaffold
-- [x] Language selector component
-- [x] Ready for i18n integration
-
-Supported languages:
-
-```text
-English
-සිංහල
-தமிழ்
-```
-
----
-
-## SEO Features
-
-- [x] SEO metadata
-- [x] Page title
-- [x] Meta description
-- [x] Open Graph metadata
-- [x] Layout metadata
-- [x] Key page metadata
-
----
-
-## Security Features
-
-- [x] JWT authentication
-- [x] HTTP-only authentication cookies
-- [x] bcrypt password hashing
-- [x] Rate limiting
-- [x] 100 requests per 15 minutes
-- [x] Helmet security headers
-- [x] Protected admin routes
-- [x] MongoDB authentication
-- [x] Environment variables for secrets
-
----
-
-## Database
-
-MongoDB is used as the primary database.
-
-Mongoose is used for database interaction.
-
-### MongoDB Schemas
-
-- [x] User
-- [x] Product
-- [x] Order
-- [x] Inquiry
-
----
-
-## Admin Features
-
-- [x] Admin login
-- [x] Admin authentication
-- [x] Product dashboard
-- [x] Product listing
-- [x] Add product
-- [x] Edit product
-- [x] Delete product
-- [x] Product photo upload
-- [x] Product price management
-- [x] Product description management
-- [x] MongoDB product management
-
-Admin URL:
-
-```text
-http://localhost:3000/admin
-```
-
-Admin login:
-
-```text
-http://localhost:3000/admin/login
-```
-
----
-
-## Media
-
-- [x] Real seafood product photography
-- [x] Product image gallery
-- [x] Admin image upload
-- [x] No stock placeholders
-- [x] Product images stored locally on the backend
-
----
-
-## 7. Environment Variables
-
-### Backend Environment Variables
-
-Create:
-
-```text
-backend/.env
-```
-
-Example:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secure_jwt_secret
-PORT=5000
-
-ADMIN_EMAIL=youremail@example.com
-ADMIN_PASSWORD=YourStrongPassword123
-```
-
-### Frontend Environment Variables
-
-Create:
-
-```text
-frontend/.env.local
-```
-
-Example:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_WHATSAPP_NUMBER=94750519450
-```
-
-> **Important:** Never commit `.env` or `.env.local` files to GitHub.
-
-Make sure they are included in `.gitignore`.
-
----
-
-## 8. Running the Complete Project
-
-The project requires two terminals.
-
-### Terminal 1 — Backend
-
-Open a terminal:
 
 ```bash
 cd backend
@@ -599,6 +117,28 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Create a `.env` file and add:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_jwt_secret
+PORT=5000
+ADMIN_EMAIL=youremail@example.com
+ADMIN_PASSWORD=YourStrongPassword123
+```
+
+Seed the product catalog:
+
+```bash
+npm run seed
+```
+
+Seed the admin user:
+
+```bash
+npm run seed:admin
 ```
 
 Start the backend:
@@ -607,23 +147,15 @@ Start the backend:
 npm run dev
 ```
 
-Backend API:
+The backend runs at:
 
 ```text
 http://localhost:5000
 ```
 
-Health check:
+### 2. Frontend Setup
 
-```text
-http://localhost:5000/api/health
-```
-
----
-
-### Terminal 2 — Frontend
-
-Open another terminal:
+Open a new terminal and go to the frontend folder:
 
 ```bash
 cd frontend
@@ -635,13 +167,20 @@ Install dependencies:
 npm install
 ```
 
+Create `.env.local` if needed:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_WHATSAPP_NUMBER=94750519450
+```
+
 Start the frontend:
 
 ```bash
 npm run dev
 ```
 
-Frontend:
+The frontend runs at:
 
 ```text
 http://localhost:3000
@@ -649,28 +188,111 @@ http://localhost:3000
 
 ---
 
-## 9. Admin Panel Access
+## Admin Access
 
-After starting both frontend and backend:
-
-Open:
+Admin login page:
 
 ```text
 http://localhost:3000/admin/login
 ```
 
-If the admin account has not been created yet, run:
+Admin dashboard:
 
-```bash
-cd backend
-npm run seed:admin
+```text
+http://localhost:3000/admin
 ```
 
-Then log in using the configured admin credentials.
+Default admin email:
+
+```text
+mmohamedraskhan@gmail.com
+```
+
+Password must be set in the backend environment file before seeding. The recommended setup is to change it before deployment.
 
 ---
 
-## 10. Project URLs
+## API Endpoints
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/health` | Health check |
+| GET | `/api/products` | List all products |
+| GET | `/api/products/:slug` | Get product details |
+| POST | `/api/auth/register` | Register a user |
+| POST | `/api/auth/login` | Login and receive token |
+| POST | `/api/orders` | Place an order |
+| POST | `/api/inquiries` | Submit an inquiry |
+| GET | `/api/meta/districts` | Get delivery districts |
+| GET | `/api/meta/business` | Get business information |
+
+Supported order methods:
+
+- Cash on Delivery
+- Simulated Card Payment
+- WhatsApp Manual Ordering
+
+---
+
+## Product Image Storage
+
+Uploaded product images are stored in:
+
+```text
+backend/uploads/products/
+```
+
+They are served from:
+
+```text
+http://localhost:5000/uploads/products/<filename>
+```
+
+The public product image assets for the storefront are kept in:
+
+```text
+frontend/public/images/products/
+```
+
+---
+
+## Environment Variables
+
+### Backend
+
+Create `backend/.env` with:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_jwt_secret
+PORT=5000
+ADMIN_EMAIL=youremail@example.com
+ADMIN_PASSWORD=YourStrongPassword123
+```
+
+### Frontend
+
+Create `frontend/.env.local` with:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_WHATSAPP_NUMBER=94750519450
+```
+
+> Important: do not commit `.env` or `.env.local` files to GitHub.
+
+---
+
+## Deployment Notes
+
+- Start the backend and frontend separately in two terminals.
+- Ensure MongoDB is running and reachable.
+- Update business name, WhatsApp number, and district configuration before deployment.
+- Use production-safe admin credentials and JWT secret values.
+
+---
+
+## Default URLs
 
 ### Frontend
 
@@ -696,565 +318,16 @@ http://localhost:5000/api/health
 http://localhost:3000/admin/login
 ```
 
-### Admin Dashboard
+---
 
-```text
-http://localhost:3000/admin
-```
+## Delivery Coverage
+
+The application is configured for Sri Lankan delivery coverage across all 25 districts, with Puttalam set as the default delivery district.
 
 ---
 
-## 11. Project Architecture
+## Notes
 
-```text
-                    RSN SEA FOOD
-                         |
-              Full-Stack E-Commerce
-                         |
-          ┌──────────────┴──────────────┐
-          |                             |
-      FRONTEND                       BACKEND
-          |                             |
-      Next.js                       Node.js
-      React 19                     Express.js
-      Tailwind CSS                     |
-          |                             |
-          |                         REST API
-          |                             |
-          └──────────────┬──────────────┘
-                         |
-                      MongoDB
-                     Mongoose
-                         |
-          ┌──────────────┼──────────────┐
-          |              |              |
-        Users         Products        Orders
-                                       |
-                                    Inquiries
-```
+This project is designed as a practical full-stack seafood e-commerce platform with a real business focus. It is suitable for local business deployment and can be customized by changing business values, catalog data, and admin credentials.
 
----
-
-## 12. Frontend Structure
-
-```text
-frontend/
-├── app/
-│   ├── admin/
-│   ├── cart/
-│   ├── checkout/
-│   ├── products/
-│   ├── delivery-areas/
-│   ├── ...
-│   └── layout.js
-│
-├── components/
-│   ├── Header
-│   ├── Footer
-│   ├── ProductCard
-│   ├── Cart
-│   ├── FAQ
-│   ├── LanguageSelector
-│   └── ...
-│
-├── context/
-│   └── CartContext
-│
-├── data/
-│   └── products.js
-│
-├── lib/
-│   ├── api.js
-│   ├── whatsapp.js
-│   └── districts.js
-│
-├── public/
-│   └── images/
-│       └── products/
-│
-└── package.json
-```
-
----
-
-## 13. Backend Structure
-
-```text
-backend/
-├── config/
-│   └── districts.js
-│
-├── controllers/
-│   ├── authController.js
-│   ├── productController.js
-│   ├── orderController.js
-│   └── inquiryController.js
-│
-├── middleware/
-│   ├── auth.js
-│   ├── admin.js
-│   └── ...
-│
-├── models/
-│   ├── User.js
-│   ├── Product.js
-│   ├── Order.js
-│   └── Inquiry.js
-│
-├── routes/
-│   ├── authRoutes.js
-│   ├── productRoutes.js
-│   ├── orderRoutes.js
-│   └── inquiryRoutes.js
-│
-├── uploads/
-│   └── products/
-│
-├── scripts/
-│   ├── seed.js
-│   └── seedAdmin.js
-│
-├── .env.example
-├── server.js
-└── package.json
-```
-
----
-
-## 14. API Authentication
-
-The backend uses JWT-based authentication.
-
-Authentication flow:
-
-```text
-User
-  |
-  v
-Register / Login
-  |
-  v
-Backend API
-  |
-  v
-Validate Credentials
-  |
-  v
-bcrypt Password Verification
-  |
-  v
-JWT Token
-  |
-  v
-HTTP-only Cookie
-  |
-  v
-Authenticated Requests
-```
-
-Admin routes are protected and require administrator authentication.
-
----
-
-## 15. Order Flow
-
-```text
-Customer
-   |
-   v
-Browse Products
-   |
-   v
-Select Product
-   |
-   v
-Add to Cart
-   |
-   v
-Shopping Cart
-   |
-   v
-Select District
-   |
-   v
-Calculate Delivery Fee
-   |
-   v
-Checkout
-   |
-   ├── Cash on Delivery
-   |
-   ├── Simulated Card Payment
-   |
-   └── WhatsApp Ordering
-   |
-   v
-Place Order
-   |
-   v
-Backend API
-   |
-   v
-MongoDB
-```
-
----
-
-## 16. WhatsApp Ordering Flow
-
-```text
-Customer
-   |
-   v
-Select Product / Cart
-   |
-   v
-Click WhatsApp Order
-   |
-   v
-Pre-filled WhatsApp Message
-   |
-   v
-WhatsApp
-   |
-   v
-RSN Sea Food
-```
-
-WhatsApp number:
-
-```text
-+94 750 519 450
-```
-
-International format:
-
-```text
-94750519450
-```
-
----
-
-## 17. Delivery System
-
-RSN Sea Food supports delivery across all **25 districts of Sri Lanka**.
-
-Default delivery district:
-
-```text
-Puttalam
-```
-
-District configuration is maintained in:
-
-```text
-frontend/lib/districts.js
-backend/config/districts.js
-```
-
-Delivery fees are calculated based on the selected district.
-
----
-
-## 18. Production Hardening / Next Steps
-
-The following improvements are recommended before deploying the system to production.
-
-### Payment Gateway
-
-- [ ] Integrate a real payment gateway
-- [ ] PayHere integration
-- [ ] Stripe integration
-- [ ] Secure payment verification
-- [ ] Payment transaction records
-- [ ] Payment status management
-
-The current card payment functionality is a simulation for development/demo purposes.
-
----
-
-### Admin Dashboard
-
-- [ ] Complete admin dashboard
-- [ ] Product CRUD
-- [ ] Order management
-- [ ] Order status updates
-- [ ] Customer management
-- [ ] Sales overview
-- [ ] Product stock management
-- [ ] Delivery management
-
----
-
-### Internationalization
-
-- [ ] Complete Sinhala translations
-- [ ] Complete Tamil translations
-- [ ] Complete English translations
-- [ ] Connect the `LanguageSelector` to i18n
-- [ ] Translate product information
-- [ ] Translate checkout and forms
-
----
-
-### Testing
-
-- [ ] Unit tests
-- [ ] API tests
-- [ ] Authentication tests
-- [ ] Product tests
-- [ ] Cart tests
-- [ ] Checkout tests
-- [ ] Admin tests
-- [ ] End-to-end tests
-
----
-
-### CI/CD
-
-- [ ] GitHub Actions
-- [ ] Automated testing
-- [ ] Automated builds
-- [ ] Deployment pipeline
-- [ ] Production monitoring
-
----
-
-## 19. Deployment
-
-### Frontend
-
-Recommended platform:
-
-```text
-Vercel
-```
-
-The Next.js frontend can be deployed directly to Vercel.
-
----
-
-### Backend
-
-Recommended platforms:
-
-```text
-Render
-Railway
-Fly.io
-```
-
----
-
-### Database
-
-Recommended database platform:
-
-```text
-MongoDB Atlas
-```
-
----
-
-## 20. Production Environment
-
-Before deployment, configure:
-
-- Production MongoDB connection
-- Strong JWT secret
-- Secure admin credentials
-- Production API URL
-- Production WhatsApp number
-- CORS configuration
-- HTTPS
-- Secure cookies
-- Rate limiting
-- File upload restrictions
-- Image size restrictions
-- Production logging
-- Error monitoring
-
----
-
-## 21. Security Checklist
-
-Before production deployment:
-
-- [ ] Change default admin credentials
-- [ ] Use a strong `JWT_SECRET`
-- [ ] Never upload `.env` files to GitHub
-- [ ] Enable HTTPS
-- [ ] Configure secure HTTP-only cookies
-- [ ] Configure CORS correctly
-- [ ] Restrict file upload types
-- [ ] Restrict image file sizes
-- [ ] Enable rate limiting
-- [ ] Keep Helmet security headers enabled
-- [ ] Validate all user input
-- [ ] Sanitize database input
-- [ ] Protect admin endpoints
-- [ ] Protect sensitive API routes
-- [ ] Regularly update dependencies
-
----
-
-## 22. Git Commands
-
-To update the project on GitHub after making changes:
-
-```bash
-git status
-```
-
-Add the changes:
-
-```bash
-git add .
-```
-
-Create a commit:
-
-```bash
-git commit -m "Update RSN Sea Food project"
-```
-
-Push to GitHub:
-
-```bash
-git push
-```
-
----
-
-## 23. GitHub Repository
-
-Repository:
-
-```text
-RSN-SEA-FOOD
-```
-
-Owner:
-
-```text
-RASHKAN2004
-```
-
-The repository contains:
-
-```text
-.vscode/
-backend/
-frontend/
-.gitignore
-README.md
-```
-
----
-
-## 24. Project Summary
-
-**RSN Sea Food** is a full-stack seafood e-commerce platform developed for a seafood business based in **Kalpitiya, Puttalam District, Sri Lanka**.
-
-The platform allows customers to browse seafood products, view detailed product information, select quantities and sizes, choose delivery districts, add products to a shopping cart, submit inquiries, and place orders.
-
-Customers can also use WhatsApp ordering to communicate directly with the business.
-
-The backend provides a REST API built with **Node.js and Express.js**, while **MongoDB and Mongoose** are used for data storage.
-
-The frontend is built using **Next.js 15, React 19, and Tailwind CSS**.
-
-An administrator can manage products, prices, descriptions, and product images through the built-in Admin Panel.
-
----
-
-## 25. Main Features Summary
-
-| Feature                | Status      |
-| ---------------------- | ----------- |
-| Product Catalog        | ✅ Complete |
-| Product Details        | ✅ Complete |
-| Shopping Cart          | ✅ Complete |
-| Checkout               | ✅ Complete |
-| District Selection     | ✅ Complete |
-| Delivery Fee Logic     | ✅ Complete |
-| WhatsApp Ordering      | ✅ Complete |
-| Inquiry Form           | ✅ Complete |
-| FAQ                    | ✅ Complete |
-| Delivery Areas         | ✅ Complete |
-| User Authentication    | ✅ Complete |
-| JWT Authentication     | ✅ Complete |
-| MongoDB Database       | ✅ Complete |
-| Admin Login            | ✅ Complete |
-| Product CRUD           | ✅ Complete |
-| Product Image Upload   | ✅ Complete |
-| Responsive Design      | ✅ Complete |
-| SEO Metadata           | ✅ Complete |
-| Sinhala/Tamil Scaffold | ✅ Ready    |
-| Real Payment Gateway   | 🔄 Future   |
-| Full Order Dashboard   | 🔄 Future   |
-| Automated Tests        | 🔄 Future   |
-| CI/CD                  | 🔄 Future   |
-
----
-
-## 26. Technology Summary
-
-```text
-Frontend
-├── Next.js 15
-├── React 19
-├── App Router
-└── Tailwind CSS
-
-Backend
-├── Node.js
-├── Express.js
-├── REST API
-├── JWT
-├── bcrypt
-├── Helmet
-└── Rate Limiting
-
-Database
-├── MongoDB
-└── Mongoose
-
-Features
-├── E-Commerce
-├── Shopping Cart
-├── Checkout
-├── WhatsApp Ordering
-├── User Authentication
-├── Admin Panel
-├── Product Management
-├── Image Upload
-├── Delivery Management
-└── Inquiry System
-```
-
----
-
-## 27. Contact
-
-**RSN Sea Food**
-
-📍 Kalpitiya, Puttalam District, Sri Lanka
-
-📱 WhatsApp: **0750519450**
-
-🌐 Business Type: **Fresh Seafood Delivery & E-Commerce**
-
----
-
-## 28. License
-
-This project is developed for **RSN Sea Food**.
-
-© 2026 RSN Sea Food. All rights reserved.
-
----
-
-# RSN Sea Food
-
-**Fresh Seafood • Quality • Affordable Prices • Delivery Across Sri Lanka**
+The app is ready for extension with additional features such as advanced order management, payment integration, and stronger multi-language support.
