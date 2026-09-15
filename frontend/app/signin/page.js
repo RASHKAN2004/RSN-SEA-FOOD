@@ -56,16 +56,16 @@ export default function SignInPage() {
 
   return (
     <main className="auth-shell min-h-screen px-3 py-4 sm:px-5 sm:py-8 lg:px-8 lg:py-12">
-      <div className="auth-card mx-auto grid max-w-[1460px] overflow-hidden rounded-[38px] border border-[#dfe7ea] bg-[#f3f3f0] shadow-[0_35px_90px_rgba(6,39,43,0.16)] lg:grid-cols-[1.04fr_1.12fr]">
-        <section className="auth-hero flex min-h-[560px] flex-col justify-between bg-[#052f35] p-6 sm:p-8 lg:p-10">
+      <div className="auth-card mx-auto grid max-w-[1320px] overflow-hidden rounded-[32px] border border-[#dfe7ea] bg-[#f3f3f0] shadow-[0_25px_70px_rgba(6,39,43,0.14)] lg:grid-cols-[0.96fr_1.04fr]">
+        <section className="auth-hero flex min-h-[500px] flex-col justify-between bg-[#052f35] p-6 sm:p-8 lg:p-9">
           <div>
-            <p className="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-[#b7d8d4]">
+            <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#b7d8d4]">
               RSN SEA FOOD
             </p>
-            <h1 className="mt-6 max-w-[420px] font-display text-[3.1rem] font-bold leading-[0.88] tracking-[-0.05em] text-[#f3f2ee] sm:text-[4.2rem] lg:text-[5.2rem]">
+            <h1 className="mt-5 max-w-[380px] font-display text-[2.7rem] font-bold leading-[0.9] tracking-[-0.05em] text-[#f3f2ee] sm:text-[3.3rem] lg:text-[4.2rem]">
               Your catch, saved for next time.
             </h1>
-            <p className="mt-6 max-w-[460px] text-[1.06rem] leading-8 text-[#dfe8e8]">
+            <p className="mt-5 max-w-[420px] text-[0.98rem] leading-7 text-[#dfe8e8]">
               Sign in to keep your delivery details ready, review your account,
               and make every seafood order quicker.
             </p>
@@ -106,23 +106,23 @@ export default function SignInPage() {
               </button>
             </div>
 
-            <div className="mt-9">
-              <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-[#f26d39]">
+            <div className="mt-8">
+              <p className="text-[0.74rem] font-bold uppercase tracking-[0.18em] text-[#f26d39]">
                 Customer account
               </p>
-              <h2 className="mt-3 font-display text-[3.1rem] font-bold leading-[0.96] tracking-[-0.06em] text-[#123b45] sm:text-[3.6rem]">
+              <h2 className="mt-2.5 font-display text-[2.6rem] font-bold leading-[0.95] tracking-[-0.06em] text-[#123b45] sm:text-[3rem]">
                 {mode === "signin"
                   ? "Welcome back"
                   : "Make ordering effortless"}
               </h2>
-              <p className="mt-4 text-[1.05rem] text-[#627b82]">
+              <p className="mt-3 text-[0.98rem] text-[#627b82]">
                 {mode === "signin"
                   ? "Use your email and password to continue."
                   : "Create your account with the details we need for delivery."}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <form onSubmit={handleSubmit} className="mt-7 space-y-4">
               {mode === "register" && (
                 <label className="auth-field-label block text-[1.02rem] font-medium text-[#173e47]">
                   Full name
@@ -199,7 +199,7 @@ export default function SignInPage() {
               <button
                 disabled={submitting}
                 type="submit"
-                className="auth-submit mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#f76a2d] to-[#f15b22] px-6 py-4 text-[1.05rem] font-semibold text-white shadow-[0_20px_38px_rgba(241,91,34,0.32)] transition hover:brightness-110 hover:shadow-[0_24px_40px_rgba(241,91,34,0.38)] disabled:cursor-not-allowed disabled:opacity-80"
+                className="auth-submit mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#f76a2d] to-[#f15b22] px-6 py-3.5 text-[1rem] font-semibold text-white shadow-[0_18px_34px_rgba(241,91,34,0.3)] transition hover:brightness-110 hover:shadow-[0_22px_38px_rgba(241,91,34,0.35)] disabled:cursor-not-allowed disabled:opacity-80"
               >
                 {submitting
                   ? "Please wait..."
@@ -213,13 +213,13 @@ export default function SignInPage() {
             {mode === "signin" && (
               <Link
                 href="/admin/forgot-password"
-                className="auth-link mt-5 block text-center text-[1.02rem] font-semibold text-[#1d6977] hover:text-[#f26d39]"
+                className="auth-link mt-4 block text-center text-[0.98rem] font-semibold text-[#1d6977] hover:text-[#f26d39]"
               >
                 Forgot your password?
               </Link>
             )}
 
-            <p className="mt-8 text-center text-[1.02rem] text-[#4d6770]">
+            <p className="mt-7 text-center text-[0.98rem] text-[#4d6770]">
               {mode === "signin"
                 ? "New to RSN Sea Food? "
                 : "Already have an account? "}
