@@ -1,4 +1,3 @@
-require("dns").setServers(["8.8.8.8", "1.1.1.1"]);
 require("dotenv").config();
 const path = require("path");
 const express = require("express");
@@ -63,6 +62,16 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not set in environment variables");
+}
+if (
+  process.env.NODE_ENV === "production" &&
+  process.env.JWT_SECRET.length < 32
+) {
+  throw new Error("JWT_SECRET must be at least 32 characters in production");
+}
 
 connectDB().then(() => {
   app.listen(PORT, () => {

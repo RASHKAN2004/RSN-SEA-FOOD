@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { api } from "@/lib/api";
@@ -15,6 +15,11 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [nextPath, setNextPath] = useState("");
+
+  useEffect(() => {
+    setNextPath(new URLSearchParams(window.location.search).get("next") || "");
+  }, []);
 
   function updateField(event) {
     setForm((current) => ({
@@ -40,7 +45,7 @@ export default function SignInPage() {
         await api.logout().catch(() => {});
         throw new Error("Please use the admin sign-in page for this account.");
       }
-      router.push("/profile");
+      router.push(nextPath || "/profile");
       router.refresh();
     } catch (err) {
       setError(err.message || "Unable to continue");

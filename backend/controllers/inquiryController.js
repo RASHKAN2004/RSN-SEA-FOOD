@@ -1,14 +1,38 @@
-const Inquiry = require('../models/Inquiry');
+const Inquiry = require("../models/Inquiry");
 
 // POST /api/inquiries
 async function createInquiry(req, res, next) {
   try {
     const { name, phone, whatsapp, district, message } = req.body;
-    if (!name || !phone || !message) {
-      return res.status(400).json({ success: false, message: 'name, phone and message are required' });
+    if (
+      !name ||
+      !phone ||
+      !message ||
+      String(name).length > 100 ||
+      String(phone).length > 30 ||
+      String(message).length > 2000
+    ) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "name, phone and message are required",
+        });
     }
-    const inquiry = await Inquiry.create({ name, phone, whatsapp, district, message });
-    res.status(201).json({ success: true, inquiry, message: 'Thank you! We will contact you shortly.' });
+    const inquiry = await Inquiry.create({
+      name,
+      phone,
+      whatsapp,
+      district,
+      message,
+    });
+    res
+      .status(201)
+      .json({
+        success: true,
+        inquiry,
+        message: "Thank you! We will contact you shortly.",
+      });
   } catch (err) {
     next(err);
   }

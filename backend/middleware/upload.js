@@ -1,8 +1,8 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-const uploadDir = path.join(__dirname, '..', 'uploads', 'products');
+const uploadDir = path.join(__dirname, "..", "uploads", "products");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -14,18 +14,25 @@ const storage = multer.diskStorage({
     const safeBase = path
       .basename(file.originalname, ext)
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
     const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    cb(null, `${safeBase || 'product'}-${unique}${ext}`);
+    cb(null, `${safeBase || "product"}-${unique}${ext}`);
   },
 });
 
 function fileFilter(req, file, cb) {
-  const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+  const allowed = {
+    ".jpg": ["image/jpeg"],
+    ".jpeg": ["image/jpeg"],
+    ".png": ["image/png"],
+    ".webp": ["image/webp"],
+  };
   const ext = path.extname(file.originalname).toLowerCase();
-  if (!allowed.includes(ext)) {
-    return cb(new Error('Only .jpg, .jpeg, .png, .webp image files are allowed'));
+  if (!allowed[ext] || !allowed[ext].includes(file.mimetype)) {
+    return cb(
+      new Error("Only .jpg, .jpeg, .png, .webp image files are allowed"),
+    );
   }
   cb(null, true);
 }

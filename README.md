@@ -20,14 +20,14 @@ The project is split into:
 
 ## Business Details
 
-| Setting | Value |
-| --- | --- |
-| Business Name | RSN Sea Food |
-| Location | Kalpitiya, Puttalam District, Sri Lanka |
-| Default Delivery District | Puttalam |
-| Delivery Coverage | All 25 Sri Lankan districts |
-| WhatsApp Number (Display) | 0750519450 |
-| WhatsApp Number (International Format) | 94750519450 |
+| Setting                                | Value                                   |
+| -------------------------------------- | --------------------------------------- |
+| Business Name                          | RSN Sea Food                            |
+| Location                               | Kalpitiya, Puttalam District, Sri Lanka |
+| Default Delivery District              | Puttalam                                |
+| Delivery Coverage                      | All 25 Sri Lankan districts             |
+| WhatsApp Number (Display)              | 0750519450                              |
+| WhatsApp Number (International Format) | 94750519450                             |
 
 Configuration files that control the business values:
 
@@ -132,8 +132,11 @@ ADMIN_PASSWORD=YourStrongPassword123
 Seed the product catalog:
 
 ```bash
-npm run seed
+ALLOW_DESTRUCTIVE_SEED=true npm run seed
 ```
+
+This replaces the existing product catalog, so run it only when you intentionally want to reseed products.
+In PowerShell, use `$env:ALLOW_DESTRUCTIVE_SEED="true"; npm run seed`.
 
 Seed the admin user:
 
@@ -214,17 +217,17 @@ Password must be set in the backend environment file before seeding. The recomme
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| GET | `/api/health` | Health check |
-| GET | `/api/products` | List all products |
-| GET | `/api/products/:slug` | Get product details |
-| POST | `/api/auth/register` | Register a user |
-| POST | `/api/auth/login` | Login and receive token |
-| POST | `/api/orders` | Place an order |
-| POST | `/api/inquiries` | Submit an inquiry |
-| GET | `/api/meta/districts` | Get delivery districts |
-| GET | `/api/meta/business` | Get business information |
+| Method | Endpoint              | Description              |
+| ------ | --------------------- | ------------------------ |
+| GET    | `/api/health`         | Health check             |
+| GET    | `/api/products`       | List all products        |
+| GET    | `/api/products/:slug` | Get product details      |
+| POST   | `/api/auth/register`  | Register a user          |
+| POST   | `/api/auth/login`     | Login and receive token  |
+| POST   | `/api/orders`         | Place an order           |
+| POST   | `/api/inquiries`      | Submit an inquiry        |
+| GET    | `/api/meta/districts` | Get delivery districts   |
+| GET    | `/api/meta/business`  | Get business information |
 
 Supported order methods:
 

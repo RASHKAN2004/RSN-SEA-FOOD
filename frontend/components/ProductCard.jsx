@@ -3,14 +3,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { formatLKR } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { productOrderLink } from "@/lib/whatsapp";
 import { useLanguage } from "@/context/LanguageContext";
+import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const { t } = useLanguage();
+  const router = useRouter();
+  const { user, loading: authLoading } = useCustomerAuth();
+
+  function requireCustomer(action) {
+    if (authLoading) return;
+    if (!user) {
+      router.push(signInPath(`/products/${product.slug}`));
+      return;
+    }
+    action();
+  }
 
   return (
     <div className="card product-card group flex h-full flex-col overflow-hidden">
@@ -55,7 +68,10 @@ export default function ProductCard({ product }) {
               {t("View Product")}
             </Link>
             <button
-              onClick={() => addItem(product, product.sizes?.[0])}
+              onClick={() =>
+                requireCustomer(() => addItem(product, product.sizes?.[0]))
+              }
+              disabled={authLoading}
               className="btn-primary flex-1 !py-2 text-xs"
               aria-label="Add to cart"
             >
@@ -63,11 +79,21 @@ export default function ProductCard({ product }) {
             </button>
           </div>
           <a
-            href={productOrderLink({
-              name: product.name,
-              localName: product.localName,
-              quantity: product.minimumQuantity,
-            })}
+            href={
+              user
+                ? productOrderLink({
+                    name: product.name,
+                    localName: product.localName,
+                    quantity: product.minimumQuantity,
+                  })
+                : undefined
+            }
+            onClick={(event) => {
+              if (!user) {
+                event.preventDefault();
+                router.push(signInPath(`/products/${product.slug}`));
+              }
+            }}
             target="_blank"
             rel="noreferrer"
             className="flex items-center justify-center gap-1.5 border border-green-500 py-2 text-xs font-semibold text-green-600 transition hover:bg-green-50"

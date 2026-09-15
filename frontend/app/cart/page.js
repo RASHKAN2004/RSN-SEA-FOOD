@@ -1,28 +1,50 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { Minus, Plus, Trash2, MessageCircle, ShoppingBag } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
-import { formatLKR } from '@/data/products';
-import { fullOrderLink } from '@/lib/whatsapp';
-import { DEFAULT_DISTRICT } from '@/lib/districts';
+import Image from "next/image";
+import Link from "next/link";
+import { Minus, Plus, Trash2, MessageCircle, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { formatLKR } from "@/data/products";
+import { fullOrderLink } from "@/lib/whatsapp";
+import { DEFAULT_DISTRICT } from "@/lib/districts";
+import { useRouter } from "next/navigation";
+import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
 
 const DELIVERY_FREE_THRESHOLD = 5000;
 const DELIVERY_FEE = 350;
 
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal } = useCart();
-  const deliveryFee = items.length === 0 ? 0 : subtotal >= DELIVERY_FREE_THRESHOLD ? 0 : DELIVERY_FEE;
+  const router = useRouter();
+  const { user, loading: authLoading } = useCustomerAuth();
+  const deliveryFee =
+    items.length === 0
+      ? 0
+      : subtotal >= DELIVERY_FREE_THRESHOLD
+        ? 0
+        : DELIVERY_FEE;
   const grandTotal = subtotal + deliveryFee;
+
+  function requireCustomer() {
+    if (authLoading) return false;
+    if (!user) {
+      router.push(signInPath("/cart"));
+      return false;
+    }
+    return true;
+  }
 
   if (items.length === 0) {
     return (
       <section className="mx-auto max-w-3xl px-4 py-20 text-center lg:px-8">
         <ShoppingBag size={48} className="mx-auto text-sea-300" />
         <h1 className="section-title mt-4">Your cart is empty</h1>
-        <p className="mt-2 text-sm text-gray-500">Browse our fresh catch and add something delicious.</p>
-        <Link href="/products" className="btn-primary mt-6 inline-flex">Shop Seafood</Link>
+        <p className="mt-2 text-sm text-gray-500">
+          Browse our fresh catch and add something delicious.
+        </p>
+        <Link href="/products" className="btn-primary mt-6 inline-flex">
+          Shop Seafood
+        </Link>
       </section>
     );
   }
@@ -36,21 +58,50 @@ export default function CartPage() {
             {items.map((item) => (
               <div key={item.key} className="flex items-center gap-4 p-4">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sea-50">
-                  <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-sea-900">
-                    {item.name}{item.localName && <span className="text-gray-500"> / {item.localName}</span>}
+                    {item.name}
+                    {item.localName && (
+                      <span className="text-gray-500"> / {item.localName}</span>
+                    )}
                   </p>
-                  <p className="text-xs text-gray-500">{item.sizeLabel} • {formatLKR(item.unitPrice)} each</p>
+                  <p className="text-xs text-gray-500">
+                    {item.sizeLabel} • {formatLKR(item.unitPrice)} each
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 rounded-full border border-gray-300 px-2 py-1">
-                  <button onClick={() => updateQty(item.key, item.qty - 1)} aria-label="Decrease quantity"><Minus size={14} /></button>
-                  <span className="w-5 text-center text-sm font-semibold">{item.qty}</span>
-                  <button onClick={() => updateQty(item.key, item.qty + 1)} aria-label="Increase quantity"><Plus size={14} /></button>
+                  <button
+                    onClick={() => updateQty(item.key, item.qty - 1)}
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="w-5 text-center text-sm font-semibold">
+                    {item.qty}
+                  </span>
+                  <button
+                    onClick={() => updateQty(item.key, item.qty + 1)}
+                    aria-label="Increase quantity"
+                  >
+                    <Plus size={14} />
+                  </button>
                 </div>
-                <p className="w-20 text-right text-sm font-bold text-sea-900">{formatLKR(item.unitPrice * item.qty)}</p>
-                <button onClick={() => removeItem(item.key)} aria-label="Remove item" className="text-gray-400 hover:text-coral-600">
+                <p className="w-20 text-right text-sm font-bold text-sea-900">
+                  {formatLKR(item.unitPrice * item.qty)}
+                </p>
+                <button
+                  onClick={() => removeItem(item.key)}
+                  aria-label="Remove item"
+                  className="text-gray-400 hover:text-coral-600"
+                >
                   <Trash2 size={18} />
                 </button>
               </div>
@@ -60,27 +111,54 @@ export default function CartPage() {
 
         {/* Summary */}
         <div className="h-fit rounded-2xl border border-sea-100 bg-white p-5">
-          <p className="font-display text-lg font-bold text-sea-900">Order Summary</p>
+          <p className="font-display text-lg font-bold text-sea-900">
+            Order Summary
+          </p>
           <div className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-500">Subtotal</span><span>{formatLKR(subtotal)}</span></div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Subtotal</span>
+              <span>{formatLKR(subtotal)}</span>
+            </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Delivery Fee</span>
-              <span>{deliveryFee === 0 ? 'Free' : formatLKR(deliveryFee)}</span>
+              <span>{deliveryFee === 0 ? "Free" : formatLKR(deliveryFee)}</span>
             </div>
             {deliveryFee > 0 && (
-              <p className="text-xs text-sea-600">Free delivery on orders over {formatLKR(DELIVERY_FREE_THRESHOLD)}</p>
+              <p className="text-xs text-sea-600">
+                Free delivery on orders over{" "}
+                {formatLKR(DELIVERY_FREE_THRESHOLD)}
+              </p>
             )}
             <div className="flex justify-between border-t border-sea-100 pt-2 text-base font-bold text-sea-900">
-              <span>Grand Total</span><span>{formatLKR(grandTotal)}</span>
+              <span>Grand Total</span>
+              <span>{formatLKR(grandTotal)}</span>
             </div>
           </div>
 
-          <Link href="/checkout" className="btn-primary mt-5 w-full">Proceed to Checkout</Link>
+          <button
+            type="button"
+            onClick={() => requireCustomer() && router.push("/checkout")}
+            disabled={authLoading}
+            className="btn-primary mt-5 w-full"
+          >
+            Proceed to Checkout
+          </button>
           <a
-            href={fullOrderLink({
-              items: items.map((i) => ({ name: i.name, localName: i.localName, quantity: `${i.qty} x ${i.sizeLabel}` })),
-              district: DEFAULT_DISTRICT,
-            })}
+            href={
+              user
+                ? fullOrderLink({
+                    items: items.map((i) => ({
+                      name: i.name,
+                      localName: i.localName,
+                      quantity: `${i.qty} x ${i.sizeLabel}`,
+                    })),
+                    district: DEFAULT_DISTRICT,
+                  })
+                : undefined
+            }
+            onClick={(event) => {
+              if (!requireCustomer()) event.preventDefault();
+            }}
             target="_blank"
             rel="noreferrer"
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-green-500 py-2.5 text-sm font-semibold text-green-600 transition hover:bg-green-50"

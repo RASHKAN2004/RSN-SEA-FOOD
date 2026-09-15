@@ -70,13 +70,25 @@ async function register(req, res, next) {
       street,
       postalCode,
     } = req.body;
-    if (!name || !email || !password || !phone) {
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+    if (
+      !name ||
+      !normalizedEmail ||
+      !password ||
+      !phone ||
+      String(name).trim().length > 100 ||
+      String(password).length < 6 ||
+      String(password).length > 128 ||
+      String(phone).length > 30
+    ) {
       return res.status(400).json({
         success: false,
         message: "name, email, password, phone are required",
       });
     }
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return res
         .status(409)
@@ -84,7 +96,7 @@ async function register(req, res, next) {
     }
     const user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       phone,
       whatsapp,
@@ -103,12 +115,15 @@ async function register(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+    if (!normalizedEmail || !password || String(password).length > 128) {
       return res
         .status(400)
         .json({ success: false, message: "email and password are required" });
     }
-    const user = await User.findOne({ email: email.toLowerCase() }).select(
+    const user = await User.findOne({ email: normalizedEmail }).select(
       "+password",
     );
     if (!user || !(await user.comparePassword(password))) {
@@ -135,7 +150,7 @@ async function forgotPassword(req, res, next) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ email: normalizedEmail, role: "admin" });
 
     if (!user) {
       return res.status(200).json({
@@ -176,7 +191,7 @@ async function resetPassword(req, res, next) {
       });
     }
 
-    if (String(password).length < 6) {
+    if (String(password).length < 6 || String(password).length > 128) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 6 characters",
@@ -187,6 +202,7 @@ async function resetPassword(req, res, next) {
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
+      role: "admin",
     });
 
     if (!user) {
