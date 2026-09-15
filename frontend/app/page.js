@@ -151,7 +151,7 @@ export default function HomePage() {
           </div>
 
           <div
-            className="relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
+            className="hero-image-shell relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
             style={{ animationDelay: "0.15s" }}
           >
             <Image
