@@ -72,50 +72,74 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden bg-[#06272b] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(117,213,204,0.28),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(247,106,43,0.18),transparent_28%)]" />
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute bottom-8 left-12 h-36 w-36 rounded-full border border-coral-400/30" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10 animate-float-slow" />
+        <div
+          className="pointer-events-none absolute bottom-8 left-12 h-36 w-36 rounded-full border border-coral-400/30 animate-float-slow"
+          style={{ animationDelay: "0.8s" }}
+        />
 
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-coral-400/40 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-tide">
+            <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-coral-400/40 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-tide">
               <Sparkles size={12} /> The Kalpitiya catch
             </span>
-            <h1 className="mt-6 max-w-xl font-display text-5xl font-semibold leading-[0.9] text-white sm:text-6xl lg:text-7xl">
+            <h1
+              className="mt-6 max-w-xl animate-fade-up font-display text-5xl font-semibold leading-[0.9] text-white sm:text-6xl lg:text-7xl"
+              style={{ animationDelay: "0.12s" }}
+            >
               {t("Fresh Seafood Delivered to Your Door")}
             </h1>
-            <p className="mt-6 max-w-lg text-base leading-7 text-slate-200">
+            <p
+              className="mt-6 max-w-lg animate-fade-up text-base leading-7 text-slate-200"
+              style={{ animationDelay: "0.2s" }}
+            >
               A cleaner, faster way to buy premium Sri Lankan seafood with
               reliable islandwide delivery and fresh daily selection.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/products" className="btn-primary">
+            <div
+              className="mt-8 flex flex-wrap gap-3 animate-fade-up"
+              style={{ animationDelay: "0.28s" }}
+            >
+              <Link
+                href="/products"
+                className="btn-primary hover-lift animate-glow"
+              >
                 {t("Shop Seafood")}
               </Link>
               <a
                 href={generalOrderLink()}
                 target="_blank"
                 rel="noreferrer"
-                className="btn-secondary"
+                className="btn-secondary hover-lift"
               >
                 <MessageCircle size={18} /> {t("Order on WhatsApp")}
               </a>
             </div>
 
             <div className="mt-8 grid max-w-md grid-cols-2 gap-3 sm:grid-cols-3">
-              <div className="stat-card">
+              <div
+                className="stat-card hover-lift animate-fade-up"
+                style={{ animationDelay: "0.35s" }}
+              >
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   Fresh
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">Daily</p>
               </div>
-              <div className="stat-card">
+              <div
+                className="stat-card hover-lift animate-fade-up"
+                style={{ animationDelay: "0.42s" }}
+              >
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   From
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">Kalpitiya</p>
               </div>
-              <div className="stat-card col-span-2 sm:col-span-1">
+              <div
+                className="stat-card col-span-2 sm:col-span-1 hover-lift animate-fade-up"
+                style={{ animationDelay: "0.5s" }}
+              >
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
                   Delivery
                 </p>
@@ -126,14 +150,17 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem]">
+          <div
+            className="relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
+            style={{ animationDelay: "0.15s" }}
+          >
             <Image
               src="/images/products/transport.jpg"
               alt="Fresh seafood catch ready for delivery"
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-center"
+              className="object-cover object-center transition duration-500 hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#06272b] via-transparent to-transparent" />
             <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
@@ -156,7 +183,7 @@ export default function HomePage() {
       <CategoryNav />
 
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between animate-fade-up">
           <div className="section-rule">
             <p className="section-kicker">Our selection</p>
             <h2 className="section-title mt-2">{t("Fresh Catch This Week")}</h2>
@@ -164,18 +191,27 @@ export default function HomePage() {
               Hand-picked daily from Kalpitiya&apos;s coastal waters.
             </p>
           </div>
-          <Link href="/products" className="btn-outline hidden sm:inline-flex">
+          <Link
+            href="/products"
+            className="btn-outline hidden sm:inline-flex hover-lift"
+          >
             {t("View All")}
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {featured.map((p) => (
-            <ProductCard key={p.slug} product={p} />
+          {featured.map((p, index) => (
+            <div
+              key={p.slug}
+              className="animate-fade-up"
+              style={{ animationDelay: `${index * 0.08}s` }}
+            >
+              <ProductCard product={p} />
+            </div>
           ))}
         </div>
         <Link
           href="/products"
-          className="btn-outline mt-6 flex w-full items-center justify-center sm:hidden"
+          className="btn-outline mt-6 flex w-full items-center justify-center sm:hidden hover-lift"
         >
           {t("View All Products")}
         </Link>
@@ -191,8 +227,12 @@ export default function HomePage() {
           </h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {benefits.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="card p-6 text-left">
+          {benefits.map(({ icon: Icon, title, text }, index) => (
+            <div
+              key={title}
+              className="card p-6 text-left hover-lift animate-fade-up"
+              style={{ animationDelay: `${index * 0.12}s` }}
+            >
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-sea-50 text-sea-700">
                 <Icon size={24} />
               </div>
@@ -207,7 +247,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
         <div className="grid gap-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-sea-50 via-white to-coral-50 p-6 shadow-card lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-center animate-fade-up">
             <p className="section-kicker">Our seafood story</p>
             <h2 className="section-title mt-2 max-w-lg">
               Built for families who value quality and freshness.
@@ -222,8 +262,12 @@ export default function HomePage() {
                 "Fresh catches selected from trusted local sources.",
                 "Tailored recommendations for families, restaurants, and gifts.",
                 "Clear WhatsApp communication before and after each order.",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3">
+              ].map((item, index) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-3 animate-fade-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
                   <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-coral-100 text-coral-700">
                     <BadgeCheck size={13} />
                   </span>
@@ -232,12 +276,12 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
-          <div className="relative h-[18rem] overflow-hidden rounded-[1.6rem] lg:h-full">
+          <div className="relative h-[18rem] overflow-hidden rounded-[1.6rem] lg:h-full animate-float-slow">
             <Image
               src="/images/products/transport.jpg"
               alt="Fresh seafood presentation"
               fill
-              className="object-cover"
+              className="object-cover transition duration-500 hover:scale-105"
             />
           </div>
         </div>
@@ -252,10 +296,11 @@ export default function HomePage() {
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
-            {steps.map(({ number, title, text }) => (
+            {steps.map(({ number, title, text }, index) => (
               <div
                 key={number}
-                className="rounded-[2rem] border border-sea-200 bg-white/80 p-6 shadow-card"
+                className="rounded-[2rem] border border-sea-200 bg-white/80 p-6 shadow-card hover-lift animate-fade-up"
+                style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-[0.2em] text-coral-600">
@@ -275,21 +320,28 @@ export default function HomePage() {
 
       <section className="bg-[#0a2d33] py-16 text-white">
         <div className="mx-auto max-w-5xl px-4 text-center lg:px-8">
-          <p className="section-kicker text-coral-300">
+          <p className="section-kicker text-coral-300 animate-fade-up">
             We bring the coast closer
           </p>
-          <h2 className="section-title mt-3 text-white">
+          <h2
+            className="section-title mt-3 text-white animate-fade-up"
+            style={{ animationDelay: "0.1s" }}
+          >
             {t("Islandwide Seafood Delivery")}
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-200">
+          <p
+            className="mx-auto mt-3 max-w-2xl animate-fade-up text-sm text-slate-200"
+            style={{ animationDelay: "0.18s" }}
+          >
             Delivery available across all 25 districts of Sri Lanka — with
             Puttalam as our home base and fastest delivery area.
           </p>
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {SRI_LANKA_DISTRICTS.slice(0, 10).map((d) => (
+            {SRI_LANKA_DISTRICTS.slice(0, 10).map((d, index) => (
               <span
                 key={d}
-                className={`rounded-2xl border px-3 py-2 text-center text-xs font-medium ${d === "Puttalam" ? "border-coral-400 bg-coral-500/20 text-white" : "border-white/10 bg-white/5 text-slate-200"}`}
+                className={`rounded-2xl border px-3 py-2 text-center text-xs font-medium animate-fade-up ${d === "Puttalam" ? "border-coral-400 bg-coral-500/20 text-white" : "border-white/10 bg-white/5 text-slate-200"}`}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 {d}
                 {d === "Puttalam" ? " ★" : ""}
@@ -297,14 +349,19 @@ export default function HomePage() {
             ))}
           </div>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href="/delivery-areas" className="btn-primary">
+            <Link
+              href="/delivery-areas"
+              className="btn-primary hover-lift animate-fade-up"
+              style={{ animationDelay: "0.25s" }}
+            >
               {t("See All 25 Districts")}
             </Link>
             <a
               href={generalOrderLink()}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink hover-lift animate-fade-up"
+              style={{ animationDelay: "0.32s" }}
             >
               Order now <ArrowRight size={16} />
             </a>

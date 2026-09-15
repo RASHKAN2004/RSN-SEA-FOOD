@@ -12,15 +12,18 @@ import {
   Truck,
   Moon,
   Sun,
+  LogOut,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { WHATSAPP_DISPLAY, generalOrderLink } from "@/lib/whatsapp";
 import LanguageSelector from "./LanguageSelector";
 import { useLanguage } from "@/context/LanguageContext";
+import { api } from "@/lib/api";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMood, setDarkMood] = useState(false);
+  const [user, setUser] = useState(null);
   const { count } = useCart();
   const { t } = useLanguage();
 
@@ -29,6 +32,19 @@ export default function Header() {
     setDarkMood(savedMood);
     document.body.classList.toggle("dark-mood", savedMood);
   }, []);
+
+  useEffect(() => {
+    api
+      .me()
+      .then((res) => setUser(res.user))
+      .catch(() => setUser(null));
+  }, []);
+
+  async function handleLogout() {
+    await api.logout().catch(() => {});
+    setUser(null);
+    window.location.href = "/";
+  }
 
   function toggleDarkMood() {
     setDarkMood((current) => {
@@ -144,9 +160,33 @@ export default function Header() {
             >
               {darkMood ? <Sun size={17} /> : <Moon size={17} />}
             </button>
-            <button className="hidden items-center gap-1 text-sm text-white transition hover:text-coral-200 sm:flex">
-              <User size={18} /> {t("Sign In")}
-            </button>
+            {user ? (
+              <div className="hidden items-center gap-2 sm:flex">
+                <Link
+                  href="/profile"
+                  className="flex max-w-32 items-center gap-1 truncate text-sm text-white transition hover:text-coral-200"
+                  title="Open profile"
+                >
+                  <User size={18} /> {user.name}
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-tide transition hover:text-coral-200"
+                  aria-label="Sign out"
+                  title="Sign out"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/signin"
+                className="hidden items-center gap-1 text-sm text-white transition hover:text-coral-200 sm:flex"
+              >
+                <User size={18} /> {t("Sign In")}
+              </Link>
+            )}
             <Link
               href="/cart"
               className="relative flex items-center text-white transition hover:text-coral-200"
@@ -185,6 +225,13 @@ export default function Header() {
               </Link>
               <Link href="/faq" onClick={() => setMenuOpen(false)}>
                 {t("FAQ")}
+              </Link>
+              <Link
+                href={user ? "/profile" : "/signin"}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-coral-200"
+              >
+                <User size={16} /> {user ? user.name : t("Sign In")}
               </Link>
               <a
                 href={generalOrderLink()}
