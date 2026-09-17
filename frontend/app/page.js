@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -64,14 +65,37 @@ const steps = [
 ];
 
 export default function HomePage() {
+  const homeRef = useRef(null);
   const { products } = useProducts();
   const { t } = useLanguage();
   const featured = products.slice(0, 8);
 
+  useEffect(() => {
+    const revealItems = homeRef.current?.querySelectorAll("[data-reveal]");
+    if (!revealItems?.length) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -48px" }
+    );
+
+    revealItems.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <>
+    <div ref={homeRef}>
       <section className="relative overflow-hidden bg-[#06272b] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(117,213,204,0.28),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(247,106,43,0.18),transparent_28%)]" />
+        <div className="hero-orb hero-orb-one" />
+        <div className="hero-orb hero-orb-two" />
+        <div className="hero-wave" aria-hidden="true" />
         <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10 animate-float-slow" />
         <div
           className="pointer-events-none absolute bottom-8 left-12 h-36 w-36 rounded-full border border-coral-400/30 animate-float-slow"
@@ -180,9 +204,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      <CategoryNav />
+      <div data-reveal>
+        <CategoryNav />
+      </div>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <section data-reveal className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between animate-fade-up">
           <div className="section-rule">
             <p className="section-kicker">Our selection</p>
@@ -217,9 +243,11 @@ export default function HomePage() {
         </Link>
       </section>
 
-      <TrustSection />
+      <div data-reveal>
+        <TrustSection />
+      </div>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+      <section data-reveal className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
         <div className="mb-8 text-center">
           <p className="section-kicker">Why choose us</p>
           <h2 className="section-title mt-2">
@@ -245,7 +273,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+      <section data-reveal className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
         <div className="grid gap-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-sea-50 via-white to-coral-50 p-6 shadow-card lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
           <div className="flex flex-col justify-center animate-fade-up">
             <p className="section-kicker">Our seafood story</p>
@@ -287,7 +315,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-tide py-16">
+      <section data-reveal className="bg-tide py-16">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mb-8 text-center">
             <p className="section-kicker">How it works</p>
@@ -318,7 +346,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#0a2d33] py-16 text-white">
+      <section data-reveal className="bg-[#0a2d33] py-16 text-white">
         <div className="mx-auto max-w-5xl px-4 text-center lg:px-8">
           <p className="section-kicker text-coral-300 animate-fade-up">
             We bring the coast closer
@@ -369,7 +397,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+      <section data-reveal className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
         <h2 className="section-title text-center">
           {t("Frequently Asked Questions")}
         </h2>
@@ -377,6 +405,6 @@ export default function HomePage() {
           <FaqAccordion />
         </div>
       </section>
-    </>
+    </div>
   );
 }
