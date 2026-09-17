@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -64,10 +64,32 @@ const steps = [
   },
 ];
 
+const heroSlides = [
+  {
+    image: "/images/products/transport.jpg",
+    label: "From coast to table",
+    title: "Freshness, handled.",
+    badge: "Islandwide",
+  },
+  {
+    image: "/images/products/prawn.jpg",
+    label: "Freshly packed",
+    title: "Premium prawns, ready to cook.",
+    badge: "Daily catch",
+  },
+  {
+    image: "/images/products/crab.jpg",
+    label: "Chef's choice",
+    title: "Crab and seafood favourites.",
+    badge: "Fresh delivery",
+  },
+];
+
 export default function HomePage() {
   const homeRef = useRef(null);
   const { products } = useProducts();
   const { t } = useLanguage();
+  const [activeSlide, setActiveSlide] = useState(0);
   const featured = products.slice(0, 8);
 
   useEffect(() => {
@@ -88,6 +110,16 @@ export default function HomePage() {
     revealItems.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 3200);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentSlide = heroSlides[activeSlide];
 
   return (
     <div ref={homeRef}>
@@ -177,43 +209,64 @@ export default function HomePage() {
           <div className="relative z-10 w-full max-w-[620px] justify-self-end">
             <div className="hero-visual">
               <div
-                className="hero-image-shell relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
+                className="hero-slide-track hero-image-shell animate-fade-up animate-glow"
                 style={{ animationDelay: "0.15s" }}
               >
-                <Image
-                  src="/images/products/transport.jpg"
-                  alt="Fresh seafood catch ready for delivery"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover object-center transition duration-500 hover:scale-105"
-                />
+                {heroSlides.map((slide, index) => (
+                  <div
+                    key={slide.title}
+                    className={`hero-slide ${index === activeSlide ? "active" : ""}`}
+                  >
+                    <Image
+                      src={slide.image}
+                      alt={slide.title}
+                      fill
+                      priority={index === 0}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover object-center"
+                    />
+                  </div>
+                ))}
+
                 <div className="absolute inset-0 bg-gradient-to-t from-[#06272b] via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
+
+                <div className="hero-slide-info">
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-coral-200">
-                    From coast to table
+                    {currentSlide.label}
                   </p>
                   <div className="mt-2 flex items-end justify-between gap-4">
                     <p className="font-display text-3xl font-bold text-white">
-                      Freshness, handled.
+                      {currentSlide.title}
                     </p>
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white">
-                      <MapPin size={12} /> Islandwide
+                      <MapPin size={12} /> {currentSlide.badge}
                     </span>
                   </div>
+                </div>
+
+                <div className="hero-dots" aria-label="Hero image switcher">
+                  {heroSlides.map((slide, index) => (
+                    <button
+                      key={slide.title}
+                      type="button"
+                      aria-label={`View ${slide.title}`}
+                      className={`hero-dot ${index === activeSlide ? "active" : ""}`}
+                      onClick={() => setActiveSlide(index)}
+                    />
+                  ))}
                 </div>
               </div>
 
               <div className="floating-photo floating-photo-left animate-fade-up">
                 <Image
-                  src="/images/products/prawn.jpg"
-                  alt="Fresh prawns"
+                  src="/images/products/lobster.jpg"
+                  alt="Fresh lobster"
                   fill
                   sizes="(max-width: 768px) 35vw, 10vw"
                   className="object-cover"
                 />
                 <div className="floating-tag">
-                  <span>Fresh prawns</span>
+                  <span>Fresh lobster</span>
                 </div>
               </div>
 

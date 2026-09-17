@@ -260,10 +260,83 @@ body {
   pointer-events: none;
 }
 
+.hero-slide-track {
+  position: relative;
+  height: 22rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(26px) scale(1.04);
+  transition:
+    opacity 0.8s ease,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-slide.active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  z-index: 2;
+}
+
+.hero-slide > span {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+}
+
 .hero-image-shell {
   position: relative;
   animation: heroFloat 6s ease-in-out infinite;
   will-change: transform;
+}
+
+.hero-slide-info {
+  position: absolute;
+  inset: auto 1.2rem 1.2rem 1.2rem;
+  z-index: 3;
+  padding: 1rem 1.1rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.hero-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateX(-50%);
+}
+
+.hero-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition:
+    width 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.hero-dot.active {
+  width: 1.8rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.9);
 }
 
 .floating-photo {
@@ -566,6 +639,38 @@ body.dark-mood .section-kicker {
   }
   50% {
     transform: translate3d(2rem, 2rem, 0) scale(1.08);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-slide-track {
+    height: 34rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-slide-track {
+    height: 24rem;
+  }
+
+  .hero-slide-info {
+    inset: auto 0.8rem 3.1rem 0.8rem;
+    padding: 0.8rem 0.9rem;
+  }
+
+  .floating-photo {
+    width: 6.75rem;
+    height: 6.75rem;
+  }
+
+  .floating-photo-left {
+    left: 0.35rem;
+    bottom: 1.2rem;
+  }
+
+  .floating-photo-right {
+    right: 0.35rem;
+    top: 1.2rem;
   }
 }
 
