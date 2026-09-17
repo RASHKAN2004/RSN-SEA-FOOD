@@ -82,7 +82,7 @@ export default function HomePage() {
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.14, rootMargin: "0px 0px -48px" }
+      { threshold: 0.14, rootMargin: "0px 0px -48px" },
     );
 
     revealItems.forEach((item) => observer.observe(item));
@@ -174,30 +174,60 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div
-            className="hero-image-shell relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
-            style={{ animationDelay: "0.15s" }}
-          >
-            <Image
-              src="/images/products/transport.jpg"
-              alt="Fresh seafood catch ready for delivery"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-center transition duration-500 hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#06272b] via-transparent to-transparent" />
-            <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-coral-200">
-                From coast to table
-              </p>
-              <div className="mt-2 flex items-end justify-between gap-4">
-                <p className="font-display text-3xl font-bold text-white">
-                  Freshness, handled.
-                </p>
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white">
-                  <MapPin size={12} /> Islandwide
-                </span>
+          <div className="relative z-10 w-full max-w-[620px] justify-self-end">
+            <div className="hero-visual">
+              <div
+                className="hero-image-shell relative z-10 h-[22rem] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:h-[28rem] lg:-mr-10 lg:h-[34rem] animate-fade-up animate-glow"
+                style={{ animationDelay: "0.15s" }}
+              >
+                <Image
+                  src="/images/products/transport.jpg"
+                  alt="Fresh seafood catch ready for delivery"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center transition duration-500 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#06272b] via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-coral-200">
+                    From coast to table
+                  </p>
+                  <div className="mt-2 flex items-end justify-between gap-4">
+                    <p className="font-display text-3xl font-bold text-white">
+                      Freshness, handled.
+                    </p>
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white">
+                      <MapPin size={12} /> Islandwide
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="floating-photo floating-photo-left animate-fade-up">
+                <Image
+                  src="/images/products/prawn.jpg"
+                  alt="Fresh prawns"
+                  fill
+                  sizes="(max-width: 768px) 35vw, 10vw"
+                  className="object-cover"
+                />
+                <div className="floating-tag">
+                  <span>Fresh prawns</span>
+                </div>
+              </div>
+
+              <div className="floating-photo floating-photo-right animate-fade-up">
+                <Image
+                  src="/images/products/crab.jpg"
+                  alt="Premium crab"
+                  fill
+                  sizes="(max-width: 768px) 35vw, 10vw"
+                  className="object-cover"
+                />
+                <div className="floating-tag">
+                  <span>Premium crab</span>
+                </div>
               </div>
             </div>
           </div>

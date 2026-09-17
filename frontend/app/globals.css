@@ -238,9 +238,80 @@ body {
   pointer-events: none;
 }
 
+.hero-visual {
+  position: relative;
+  display: block;
+  min-height: 22rem;
+  width: 100%;
+}
+
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 7% 8% -4% 8%;
+  border-radius: 2rem;
+  background: radial-gradient(
+    circle at center,
+    rgba(117, 213, 204, 0.24),
+    rgba(117, 213, 204, 0.08) 38%,
+    transparent 70%
+  );
+  filter: blur(12px);
+  pointer-events: none;
+}
+
 .hero-image-shell {
+  position: relative;
   animation: heroFloat 6s ease-in-out infinite;
   will-change: transform;
+}
+
+.floating-photo {
+  position: absolute;
+  z-index: 20;
+  overflow: hidden;
+  width: 8.5rem;
+  height: 8.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 28px 60px rgba(9, 29, 34, 0.2);
+  backdrop-filter: blur(10px);
+  animation: floatCard 6.5s ease-in-out infinite;
+}
+
+.floating-photo > span {
+  border-radius: inherit;
+}
+
+.floating-tag {
+  position: absolute;
+  inset: auto 0.7rem 0.7rem 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(9, 29, 34, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.45rem 0.6rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f4fdfd;
+  backdrop-filter: blur(8px);
+}
+
+.floating-photo-left {
+  left: -1rem;
+  bottom: 2.5rem;
+  animation-delay: 0.5s;
+}
+
+.floating-photo-right {
+  right: -0.5rem;
+  top: 2.5rem;
+  animation-delay: 1.1s;
 }
 
 .hero-orb {
@@ -256,14 +327,22 @@ body {
 .hero-orb-one {
   top: -11rem;
   left: 38%;
-  background: radial-gradient(circle, rgba(117, 213, 204, 0.58), transparent 68%);
+  background: radial-gradient(
+    circle,
+    rgba(117, 213, 204, 0.58),
+    transparent 68%
+  );
   animation: driftOrb 12s ease-in-out infinite;
 }
 
 .hero-orb-two {
   right: 8%;
   bottom: -15rem;
-  background: radial-gradient(circle, rgba(247, 106, 43, 0.45), transparent 66%);
+  background: radial-gradient(
+    circle,
+    rgba(247, 106, 43, 0.45),
+    transparent 66%
+  );
   animation: driftOrb 14s ease-in-out -5s infinite reverse;
 }
 
@@ -487,6 +566,16 @@ body.dark-mood .section-kicker {
   }
   50% {
     transform: translate3d(2rem, 2rem, 0) scale(1.08);
+  }
+}
+
+@keyframes floatCard {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-2deg);
   }
 }
 
