@@ -7,6 +7,7 @@ import {
   Check,
   LogOut,
   MapPin,
+  MessageCircle,
   Save,
   UserRound,
 } from "lucide-react";
