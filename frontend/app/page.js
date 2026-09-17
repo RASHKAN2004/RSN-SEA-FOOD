@@ -357,18 +357,18 @@ export default function HomePage() {
       </section>
 
       <section data-reveal className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
-        <div className="grid gap-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-sea-50 via-white to-coral-50 p-6 shadow-card lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
+        <div className="story-panel grid gap-6 overflow-hidden rounded-[2rem] p-6 shadow-card lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
           <div className="flex flex-col justify-center animate-fade-up">
             <p className="section-kicker">Our seafood story</p>
             <h2 className="section-title mt-2 max-w-lg">
               Built for families who value quality and freshness.
             </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">
+            <p className="story-copy mt-4 max-w-xl text-base leading-7">
               RSN Sea Food brings the richness of the Sri Lankan coastline to
               your table with careful sourcing, hygienic handling, and
               consistent islandwide delivery support.
             </p>
-            <ul className="mt-6 space-y-3 text-sm text-gray-700">
+            <ul className="story-list mt-6 space-y-3 text-sm">
               {[
                 "Fresh catches selected from trusted local sources.",
                 "Tailored recommendations for families, restaurants, and gifts.",
@@ -379,7 +379,7 @@ export default function HomePage() {
                   className="flex items-start gap-3 animate-fade-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-coral-100 text-coral-700">
+                  <span className="story-badge mt-0.5 flex h-5 w-5 items-center justify-center rounded-full">
                     <BadgeCheck size={13} />
                   </span>
                   <span>{item}</span>
