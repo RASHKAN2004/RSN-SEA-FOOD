@@ -121,9 +121,9 @@ export default function ProfilePage() {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="card mt-8 grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.75fr_1.25fr]"
+          className="mt-8 grid overflow-hidden rounded-[2rem] border border-sea-200 bg-[#edf8f7] p-6 shadow-[0_20px_50px_rgba(8,41,47,0.09)] sm:p-8 lg:grid-cols-[0.75fr_1.25fr]"
         >
-          <aside className="rounded-2xl bg-[#0b343b] p-6 text-white">
+          <aside className="rounded-[1.5rem] bg-[#0b343b] p-6 text-white">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-tide">
               <UserRound size={24} />
             </span>
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                   required
                   value={form.name}
                   onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
                 />
               </label>
               <label className="text-sm font-semibold text-sea-900">
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                   required
                   value={form.phone}
                   onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
                 />
               </label>
             </div>
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                 name="whatsapp"
                 value={form.whatsapp}
                 onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
               />
             </label>
             <div className="border-t border-gray-100 pt-5">
@@ -193,7 +193,7 @@ export default function ProfilePage() {
                 name="street"
                 value={form.street}
                 onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
                 placeholder="House number, street"
               />
             </label>
@@ -204,7 +204,7 @@ export default function ProfilePage() {
                   name="city"
                   value={form.city}
                   onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
                 />
               </label>
               <label className="text-sm font-semibold text-sea-900">
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                   name="district"
                   value={form.district}
                   onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
                 >
                   {SRI_LANKA_DISTRICTS.map((district) => (
                     <option key={district}>{district}</option>
@@ -228,7 +228,7 @@ export default function ProfilePage() {
                 name="postalCode"
                 value={form.postalCode}
                 onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 font-normal outline-none focus:border-coral-400 focus:ring-4 focus:ring-coral-100"
+                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
               />
             </label>
             {error && (
