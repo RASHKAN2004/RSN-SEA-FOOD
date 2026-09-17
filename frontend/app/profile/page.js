@@ -97,162 +97,234 @@ export default function ProfilePage() {
     );
 
   return (
-    <main className="relative overflow-hidden px-4 py-12 sm:py-16">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-tide/20 blur-3xl" />
-      <div className="relative mx-auto max-w-4xl">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-sea-700 hover:text-coral-600"
-            >
-              <ArrowLeft size={16} /> Back to storefront
+    <main className="min-h-screen bg-[#f2efe8] text-[#0f2d35]">
+      <div className="bg-[#021d23] text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-[11px] text-slate-200 sm:px-6">
+          <div className="flex items-center gap-5">
+            <Link href="/" className="hover:text-white/90">
+              Support
             </Link>
-            <p className="section-kicker mt-7">Customer account</p>
-            <h1 className="section-title mt-2">Your profile</h1>
-            <p className="mt-2 text-gray-500">
-              Keep your contact and delivery details ready for a faster
-              checkout.
-            </p>
+            <Link href="/faq" className="hover:text-white/90">
+              FAQ
+            </Link>
+            <Link href="/delivery-areas" className="hover:text-white/90">
+              Delivery Areas
+            </Link>
+            <Link href="/about" className="hover:text-white/90">
+              Submit Your Inquiry
+            </Link>
           </div>
-          <button type="button" onClick={handleLogout} className="btn-outline">
-            <LogOut size={16} /> Sign out
-          </button>
-        </div>
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 grid overflow-hidden rounded-[2rem] border border-sea-200 bg-[#edf8f7] p-6 shadow-[0_20px_50px_rgba(8,41,47,0.09)] sm:p-8 lg:grid-cols-[0.75fr_1.25fr]"
-        >
-          <aside className="rounded-[1.5rem] bg-[#0b343b] p-6 text-white">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-tide">
-              <UserRound size={24} />
+          <div className="hidden items-center gap-4 sm:flex">
+            <span>0750519450</span>
+            <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-cyan-200">
+              Delivery Available
             </span>
-            <h2 className="mt-6 font-display text-2xl font-bold">
-              Account details
-            </h2>
-            <p className="mt-2 break-words text-sm leading-6 text-sea-100">
-              {email}
-            </p>
-            <div className="mt-8 flex items-start gap-3 text-sm text-sea-100">
-              <MapPin className="mt-0.5 shrink-0 text-coral-300" size={17} />
-              Your saved address helps us prepare delivery details accurately.
+          </div>
+        </div>
+
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg font-bold text-white shadow-[0_0_18px_rgba(117,213,204,0.25)]">
+              R
             </div>
-          </aside>
-          <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-sea-900">
-                Personal information
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                These details are used when we contact you about an order.
-              </p>
+              <div className="font-display text-3xl font-bold leading-none">
+                RSN Sea Food
+              </div>
+              <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-cyan-200">
+                KALPITIYA, SRI LANKA
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-sea-900">
-                Full name
-                <input
-                  name="name"
-                  required
-                  value={form.name}
-                  onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-                />
-              </label>
-              <label className="text-sm font-semibold text-sea-900">
-                Phone
-                <input
-                  name="phone"
-                  required
-                  value={form.phone}
-                  onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-                />
-              </label>
-            </div>
-            <label className="block text-sm font-semibold text-sea-900">
-              WhatsApp number{" "}
-              <span className="font-normal text-gray-400">(optional)</span>
-              <input
-                name="whatsapp"
-                value={form.whatsapp}
-                onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-              />
-            </label>
-            <div className="border-t border-gray-100 pt-5">
-              <h2 className="text-xl font-bold text-sea-900">
-                Delivery address
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Save one primary address for convenient ordering.
-              </p>
-            </div>
-            <label className="block text-sm font-semibold text-sea-900">
-              Street / house details
-              <input
-                name="street"
-                value={form.street}
-                onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-                placeholder="House number, street"
-              />
-            </label>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-sea-900">
-                City
-                <input
-                  name="city"
-                  value={form.city}
-                  onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-                />
-              </label>
-              <label className="text-sm font-semibold text-sea-900">
-                District
-                <select
-                  name="district"
-                  value={form.district}
-                  onChange={updateField}
-                  className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-                >
-                  {SRI_LANKA_DISTRICTS.map((district) => (
-                    <option key={district}>{district}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <label className="block text-sm font-semibold text-sea-900">
-              Postal code{" "}
-              <span className="font-normal text-gray-400">(optional)</span>
-              <input
-                name="postalCode"
-                value={form.postalCode}
-                onChange={updateField}
-                className="mt-1.5 w-full rounded-xl border border-sea-200 bg-[#f6fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
-              />
-            </label>
-            {error && (
-              <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-                {error}
-              </p>
-            )}
-            {message && (
-              <p className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                <Check size={16} />
-                {message}
-              </p>
-            )}
+          </div>
+
+          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-100 lg:flex">
+            <Link href="/" className="hover:text-white">
+              Home
+            </Link>
+            <Link href="/products" className="hover:text-white">
+              Products
+            </Link>
+            <Link href="/delivery-areas" className="hover:text-white">
+              Delivery Areas
+            </Link>
+            <Link href="/about" className="hover:text-white">
+              About Us
+            </Link>
+            <Link href="/faq" className="hover:text-white">
+              FAQ
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3 text-white">
             <button
-              disabled={saving}
-              type="submit"
-              className="btn-primary w-full sm:w-auto"
+              type="button"
+              className="rounded-full border border-white/10 bg-white/5 p-2.5 transition hover:bg-white/10"
+              aria-label="Toggle theme"
             >
-              <Save size={16} />
-              {saving ? "Saving..." : "Save profile"}
+              <UserRound size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              <LogOut size={16} /> Sign out
             </button>
           </div>
-        </form>
+        </div>
       </div>
+
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+        <div className="grid overflow-hidden rounded-[1.75rem] border border-[#dfe9e3] bg-[#edf8f7] shadow-[0_16px_40px_rgba(7,39,42,0.08)] lg:grid-cols-[0.82fr_1.18fr]">
+          <aside className="bg-[#0a343b] p-6 text-white sm:p-8">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-cyan-200">
+              <UserRound size={28} />
+            </div>
+            <h2 className="mt-6 font-display text-4xl font-bold leading-none">
+              Account details
+            </h2>
+            <p className="mt-4 break-words text-base text-sea-100">{email}</p>
+
+            <div className="mt-8 flex items-start gap-3 text-sm leading-6 text-sea-100">
+              <MapPin className="mt-1 shrink-0 text-coral-300" size={17} />
+              <span>
+                Your saved address helps us prepare delivery details accurately.
+              </span>
+            </div>
+          </aside>
+
+          <div className="bg-[#edf8f7] p-6 sm:p-8">
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm text-gray-500">
+                  These details are used when we contact you about an order.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-sea-900">
+                  Full name
+                  <input
+                    name="name"
+                    required
+                    value={form.name}
+                    onChange={updateField}
+                    className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                  />
+                </label>
+                <label className="text-sm font-semibold text-sea-900">
+                  Phone
+                  <input
+                    name="phone"
+                    required
+                    value={form.phone}
+                    onChange={updateField}
+                    className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                  />
+                </label>
+              </div>
+
+              <label className="block text-sm font-semibold text-sea-900">
+                WhatsApp number{" "}
+                <span className="font-normal text-gray-400">(optional)</span>
+                <input
+                  name="whatsapp"
+                  value={form.whatsapp}
+                  onChange={updateField}
+                  className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                />
+              </label>
+
+              <div className="border-t border-[#d5e4e1] pt-6">
+                <h2 className="text-2xl font-bold text-sea-900">
+                  Delivery address
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Save one primary address for convenient ordering.
+                </p>
+              </div>
+
+              <label className="block text-sm font-semibold text-sea-900">
+                Street / house details
+                <input
+                  name="street"
+                  value={form.street}
+                  onChange={updateField}
+                  className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                  placeholder="House number, street"
+                />
+              </label>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-sea-900">
+                  City
+                  <input
+                    name="city"
+                    value={form.city}
+                    onChange={updateField}
+                    className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                  />
+                </label>
+                <label className="text-sm font-semibold text-sea-900">
+                  District
+                  <select
+                    name="district"
+                    value={form.district}
+                    onChange={updateField}
+                    className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                  >
+                    {SRI_LANKA_DISTRICTS.map((district) => (
+                      <option key={district}>{district}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className="block text-sm font-semibold text-sea-900">
+                Postal code{" "}
+                <span className="font-normal text-gray-400">(optional)</span>
+                <input
+                  name="postalCode"
+                  value={form.postalCode}
+                  onChange={updateField}
+                  className="mt-1.5 w-full rounded-xl border border-[#cfe5e2] bg-[#f7fbfb] px-4 py-3 font-normal text-sea-900 outline-none transition focus:border-coral-400 focus:bg-white focus:ring-4 focus:ring-coral-100"
+                />
+              </label>
+
+              {error && (
+                <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
+              {message && (
+                <p className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                  <Check size={16} />
+                  {message}
+                </p>
+              )}
+
+              <div className="pt-2">
+                <button
+                  disabled={saving}
+                  type="submit"
+                  className="btn-primary inline-flex w-full items-center justify-center gap-2 sm:w-auto"
+                >
+                  <Save size={16} />
+                  {saving ? "Saving..." : "Save profile"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        className="fixed bottom-5 right-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#3fc894] text-white shadow-[0_14px_30px_rgba(63,200,148,0.4)] transition hover:scale-105"
+        aria-label="Chat with us"
+      >
+        <MessageCircle size={28} />
+      </button>
     </main>
   );
 }
