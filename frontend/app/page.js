@@ -64,6 +64,21 @@ const steps = [
   },
 ];
 
+const featureHighlights = [
+  {
+    title: "Daily harvest",
+    text: "Fresh selections from Kalpitiya waters every morning.",
+  },
+  {
+    title: "Trusted quality",
+    text: "Carefully packed, cleaned, and checked before every order.",
+  },
+  {
+    title: "Quick ordering",
+    text: "Fast WhatsApp confirmation with islandwide delivery support.",
+  },
+];
+
 const heroSlides = [
   {
     image: "/images/products/transport.jpg",
@@ -136,14 +151,14 @@ export default function HomePage() {
 
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
-            <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-coral-400/40 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-tide">
+            <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-coral-300/40 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-coral-100 shadow-[0_10px_30px_rgba(247,106,43,0.15)]">
               <Sparkles size={12} /> The Kalpitiya catch
             </span>
             <h1
               className="mt-6 max-w-xl animate-fade-up font-display text-5xl font-semibold leading-[0.9] text-white sm:text-6xl lg:text-7xl"
               style={{ animationDelay: "0.12s" }}
             >
-              {t("Fresh Seafood Delivered to Your Door")}
+              {t("Fresh Seafood, Perfect for Every Feast")}
             </h1>
             <p
               className="mt-6 max-w-lg animate-fade-up text-base leading-7 text-slate-200"
@@ -284,6 +299,22 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-3">
+          {featureHighlights.map(({ title, text }) => (
+            <div
+              key={title}
+              className="feature-highlight rounded-[1.4rem] border border-white/60 bg-white/80 p-5 shadow-[0_20px_45px_rgba(10,39,43,0.08)] backdrop-blur-sm"
+            >
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-coral-600">
+                {title}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
+            </div>
+          ))}
         </div>
       </section>
 
