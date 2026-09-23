@@ -212,6 +212,31 @@ body {
   border-radius: 999px;
 }
 
+.feature-highlight {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(236, 250, 249, 0.82)
+  );
+  border: 1px solid rgba(21, 75, 86, 0.09);
+}
+
+.feature-highlight::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -70% auto;
+  width: 11rem;
+  height: 11rem;
+  background: radial-gradient(
+    circle,
+    rgba(117, 213, 204, 0.4),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
 .product-card {
   border: 1px solid rgba(16, 44, 50, 0.08);
   background: rgba(255, 255, 255, 0.76);
