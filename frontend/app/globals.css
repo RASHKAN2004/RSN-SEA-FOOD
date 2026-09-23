@@ -636,10 +636,34 @@ body.dark-mood .story-badge {
 body.dark-mood .product-card,
 body.dark-mood .card,
 body.dark-mood .faq-accordion,
-body.dark-mood .glass-panel {
+body.dark-mood .glass-panel,
+body.dark-mood .feature-highlight {
   border-color: rgba(190, 220, 213, 0.14);
   background: var(--page-card);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mood .feature-highlight {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(17, 39, 44, 0.8)
+  );
+  border: 1px solid rgba(190, 220, 213, 0.12);
+}
+
+body.dark-mood .feature-highlight::before {
+  background: radial-gradient(
+    circle,
+    rgba(117, 213, 204, 0.22),
+    transparent 62%
+  );
+}
+
+body.dark-mood .feature-highlight .rounded-full {
+  background: rgba(11, 27, 31, 0.78);
+  color: #ebf9f7;
+  border: 1px solid rgba(190, 220, 213, 0.12);
 }
 
 body.dark-mood .faq-item {
