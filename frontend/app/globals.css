@@ -217,21 +217,29 @@ body {
   overflow: hidden;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.9),
-    rgba(236, 250, 249, 0.82)
+    rgba(255, 255, 255, 0.96),
+    rgba(237, 248, 247, 0.8)
   );
-  border: 1px solid rgba(21, 75, 86, 0.09);
+  border: 1px solid rgba(21, 75, 86, 0.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.feature-highlight:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(6, 39, 43, 0.12);
 }
 
 .feature-highlight::before {
   content: "";
   position: absolute;
-  inset: auto -20% -70% auto;
-  width: 11rem;
-  height: 11rem;
+  inset: auto -12% -52% auto;
+  width: 10rem;
+  height: 10rem;
   background: radial-gradient(
     circle,
-    rgba(117, 213, 204, 0.4),
+    rgba(117, 213, 204, 0.38),
     transparent 60%
   );
   pointer-events: none;
@@ -567,12 +575,29 @@ body.dark-mood textarea::placeholder {
 }
 
 .story-panel {
+  position: relative;
   background: linear-gradient(
     135deg,
     rgba(245, 249, 248, 0.96),
-    rgba(255, 255, 255, 0.9)
+    rgba(255, 255, 255, 0.92)
   );
   border: 1px solid rgba(16, 44, 50, 0.08);
+  box-shadow: 0 32px 60px rgba(10, 39, 43, 0.08);
+}
+
+.story-panel::before {
+  content: "";
+  position: absolute;
+  inset: 12% auto auto -4%;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(117, 213, 204, 0.22),
+    transparent 65%
+  );
+  pointer-events: none;
 }
 
 .story-copy {

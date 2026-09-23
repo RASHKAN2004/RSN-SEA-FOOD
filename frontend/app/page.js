@@ -68,14 +68,17 @@ const featureHighlights = [
   {
     title: "Daily harvest",
     text: "Fresh selections from Kalpitiya waters every morning.",
+    tag: "Freshly caught",
   },
   {
     title: "Trusted quality",
     text: "Carefully packed, cleaned, and checked before every order.",
+    tag: "Quality check",
   },
   {
     title: "Quick ordering",
     text: "Fast WhatsApp confirmation with islandwide delivery support.",
+    tag: "Easy support",
   },
 ];
 
@@ -164,8 +167,8 @@ export default function HomePage() {
               className="mt-6 max-w-lg animate-fade-up text-base leading-7 text-slate-200"
               style={{ animationDelay: "0.2s" }}
             >
-              A cleaner, faster way to buy premium Sri Lankan seafood with
-              reliable islandwide delivery and fresh daily selection.
+              From the coast to your kitchen — premium Sri Lankan seafood,
+              carefully selected and delivered with freshness you can trust.
             </p>
 
             <div
@@ -186,6 +189,22 @@ export default function HomePage() {
               >
                 <MessageCircle size={18} /> {t("Order on WhatsApp")}
               </a>
+            </div>
+
+            <div
+              className="mt-8 flex flex-wrap gap-3 animate-fade-up"
+              style={{ animationDelay: "0.32s" }}
+            >
+              {["Freshly caught", "Islandwide delivery", "Trusted quality"].map(
+                (item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-medium tracking-[0.12em] text-slate-100 uppercase"
+                  >
+                    {item}
+                  </span>
+                ),
+              )}
             </div>
 
             <div className="mt-8 grid max-w-md grid-cols-2 gap-3 sm:grid-cols-3">
@@ -304,12 +323,18 @@ export default function HomePage() {
 
       <section className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 lg:px-8">
         <div className="grid gap-4 md:grid-cols-3">
-          {featureHighlights.map(({ title, text }) => (
+          {featureHighlights.map(({ title, text, tag }) => (
             <div
               key={title}
-              className="feature-highlight rounded-[1.4rem] border border-white/60 bg-white/80 p-5 shadow-[0_20px_45px_rgba(10,39,43,0.08)] backdrop-blur-sm"
+              className="feature-highlight rounded-[1.5rem] border border-white/60 bg-white/80 p-5 shadow-[0_20px_45px_rgba(10,39,43,0.08)] backdrop-blur-sm"
             >
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-coral-600">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="rounded-full bg-[#edf9f7] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.2em] text-sea-700">
+                  {tag}
+                </span>
+                <span className="h-2.5 w-2.5 rounded-full bg-coral-500 shadow-[0_0_18px_rgba(247,106,43,0.7)]" />
+              </div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-coral-600">
                 {title}
               </p>
               <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
