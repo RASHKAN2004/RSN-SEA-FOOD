@@ -109,14 +109,14 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
         {/* Brand Logo */}
         <Link href="/" className="group flex items-center gap-3">
-          <div className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-sea-400/40 bg-gradient-to-br from-white via-sea-50 to-coral-50 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-105 group-hover:border-coral-400">
+          <div className="relative hidden h-12 w-12 overflow-hidden rounded-full border-2 border-sea-400/40 bg-gradient-to-br from-white via-sea-50 to-coral-50 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-105 group-hover:border-coral-400 sm:block">
             <Image
               src="/images/rsn_logo.jpg"
               alt="RSN Sea Food Logo"
               fill
               priority
-              sizes="44px"
-              className="object-cover p-1.5"
+              sizes="48px"
+              className="object-contain"
               style={{ objectPosition: "center" }}
             />
           </div>
