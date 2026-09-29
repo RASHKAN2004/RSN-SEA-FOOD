@@ -238,7 +238,7 @@ export default function Footer() {
       {/* Bottom Bar: Copyright & Payment Badges */}
       <div className="border-t border-white/10 bg-[#020e10] py-6">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-slate-400 sm:flex-row lg:px-8">
-          <p>
+          <p suppressHydrationWarning>
             © {new Date().getFullYear()} RSN Sea Food, Kalpitiya, Sri Lanka. All
             rights reserved.
           </p>

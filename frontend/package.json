@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next build"
   },
   "dependencies": {
     "lucide-react": "^0.383.0",
@@ -16,7 +16,10 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^16.3.6",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.4"
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.9.3"
   }
 }

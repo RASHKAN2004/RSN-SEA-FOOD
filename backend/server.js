@@ -1,5 +1,5 @@
-require("dotenv").config();
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -18,12 +18,28 @@ const metaRoutes = require("./routes/metaRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
+const configuredClientOrigin = process.env.CLIENT_URL || "http://localhost:3000";
+const localDevelopmentOrigins = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+]);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (origin === configuredClientOrigin) return true;
+  return process.env.NODE_ENV !== "production" && localDevelopmentOrigins.has(origin);
+}
 
 // --- Security & core middleware ---
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin(origin, callback) {
+      if (isAllowedOrigin(origin)) return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
     credentials: true,
   }),
 );

@@ -9,6 +9,11 @@ export const metadata = {
   title: 'Fresh Seafood Delivery in Sri Lanka | RSN Sea Food',
   description:
     'Order fresh fish, crab, prawns, squid and other seafood with convenient islandwide delivery across Sri Lanka. Based in Kalpitiya, Puttalam District.',
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'Fresh Seafood Delivery in Sri Lanka | RSN Sea Food',
     description:

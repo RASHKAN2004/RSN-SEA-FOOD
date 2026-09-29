@@ -14,14 +14,25 @@ function EditProductInner() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!id) return;
+    setLoading(true);
     api
-      .getProducts()
+      .getProduct(id)
       .then((res) => {
-        const found = res.products.find((p) => p._id === id);
-        if (!found) throw new Error('Product not found');
-        setProduct(found);
+        if (res.product) {
+          setProduct(res.product);
+        } else {
+          throw new Error('Product not found');
+        }
       })
-      .catch((err) => setError(err.message))
+      .catch(() => {
+        return api.getProducts({ limit: 100 }).then((res) => {
+          const found = res.products?.find((p) => p._id === id);
+          if (!found) throw new Error('Product not found');
+          setProduct(found);
+        });
+      })
+      .catch((err) => setError(err.message || 'Product not found'))
       .finally(() => setLoading(false));
   }, [id]);
 

@@ -59,10 +59,14 @@ async function getProducts(req, res, next) {
   }
 }
 
-// GET /api/products/:slug
+// GET /api/products/:slug (supports slug or MongoDB ObjectId)
 async function getProductBySlug(req, res, next) {
   try {
-    const product = await Product.findOne({ slug: req.params.slug });
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.slug);
+    const filter = isObjectId
+      ? { $or: [{ slug: req.params.slug }, { _id: req.params.slug }] }
+      : { slug: req.params.slug };
+    const product = await Product.findOne(filter);
     if (!product) {
       return res
         .status(404)

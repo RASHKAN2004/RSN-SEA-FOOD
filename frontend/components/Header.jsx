@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Menu,
   X,
@@ -16,6 +16,9 @@ import {
   LogOut,
   ShieldCheck,
   Search,
+  Sparkles,
+  ArrowRight,
+  Fish,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { WHATSAPP_DISPLAY, generalOrderLink } from "@/lib/whatsapp";
@@ -24,8 +27,11 @@ import { useLanguage } from "@/context/LanguageContext";
 import { api } from "@/lib/api";
 
 export default function Header() {
+  const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [darkMood, setDarkMood] = useState(false);
   const [user, setUser] = useState(null);
   const { count } = useCart();
@@ -108,8 +114,8 @@ export default function Header() {
       {/* Main Navigation Bar */}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="relative hidden h-12 w-12 overflow-hidden rounded-full border-2 border-sea-400/40 bg-gradient-to-br from-white via-sea-50 to-coral-50 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-105 group-hover:border-coral-400 sm:block">
+        <Link href="/" className="group flex items-center gap-2.5 sm:gap-3">
+          <div className="relative flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-full border-2 border-sea-400/40 bg-gradient-to-br from-white via-sea-50 to-coral-50 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-105 group-hover:border-coral-400">
             <Image
               src="/images/rsn_logo.jpg"
               alt="RSN Sea Food Logo"
@@ -122,14 +128,14 @@ export default function Header() {
           </div>
           <div className="leading-tight">
             <div className="flex items-center gap-1.5">
-              <span className="font-display text-2xl font-bold tracking-tight text-white group-hover:text-sea-200 transition-colors">
+              <span className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-sea-200 transition-colors">
                 RSN Sea Food
               </span>
               <span className="rounded bg-coral-500/20 px-1.5 py-0.2 text-[9px] font-bold text-coral-300 uppercase tracking-widest border border-coral-500/30 hidden sm:inline-block">
                 FRESH
               </span>
             </div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-sea-300/80">
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-sea-300/80">
               {t("Kalpitiya, Sri Lanka")}
             </p>
           </div>
@@ -159,16 +165,17 @@ export default function Header() {
         </nav>
 
         {/* Action Buttons & Profile */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Quick Search Link */}
-          <Link
-            href="/products"
-            className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:border-sea-400 hover:text-white"
-            title="Browse & search seafood"
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Search Button (Desktop & Mobile) */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:border-sea-400 hover:text-white active:scale-95"
+            title="Search fresh seafood"
             aria-label="Search seafood"
           >
             <Search size={16} />
-          </Link>
+          </button>
 
           {/* Dark / Light Toggle */}
           <button
@@ -285,6 +292,69 @@ export default function Header() {
               </a>
             </div>
           </nav>
+        </div>
+      )}
+
+      {/* Quick Search Spotlight Modal */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 pt-20 px-4 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-xl rounded-3xl border border-white/15 bg-[#062024] p-5 text-white shadow-2xl">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <Search size={20} className="text-teal-400 shrink-0" />
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchQuery.trim()) {
+                    setSearchOpen(false);
+                    router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
+                placeholder="Search fresh catch (e.g. Mud Crab, Tiger Prawn, Tuna)..."
+                className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-slate-400 outline-none"
+              />
+              <button
+                onClick={() => {
+                  setSearchOpen(false);
+                  setSearchQuery("");
+                }}
+                className="text-slate-400 hover:text-white p-1"
+                aria-label="Close search"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Popular Kalpitiya Catches
+              </p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                {[
+                  { label: "Jumbo Tiger Prawns", cat: "Prawn" },
+                  { label: "Lagoon Mud Crabs", cat: "Crab" },
+                  { label: "Yellowfin Tuna", cat: "Tuna" },
+                  { label: "Seer Fish Steaks", cat: "Seer Fish" },
+                  { label: "Rock Lobster", cat: "Lobster" },
+                  { label: "Squid & Cuttlefish", cat: "Squid" },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setSearchOpen(false);
+                      router.push(`/products?category=${encodeURIComponent(item.cat)}`);
+                    }}
+                    className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 py-1.5 px-3 text-xs text-slate-200 transition hover:border-coral-400 hover:bg-white/10 hover:text-white"
+                  >
+                    <Fish size={12} className="text-teal-400" />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </header>

@@ -6,11 +6,26 @@ import { MapPin, Search, Truck, CheckCircle2, ShieldCheck, Clock, MessageCircle,
 import { SRI_LANKA_DISTRICTS, DEFAULT_DISTRICT } from '@/lib/districts';
 import { generalOrderLink, WHATSAPP_DISPLAY } from '@/lib/whatsapp';
 
+const PROVINCES = [
+  { label: 'All Districts', value: 'all' },
+  { label: 'Western Province', value: 'western', districts: ['Colombo', 'Gampaha', 'Kalutara'] },
+  { label: 'North Western (Home Hub)', value: 'north-western', districts: ['Puttalam', 'Kurunegala'] },
+  { label: 'Central Province', value: 'central', districts: ['Kandy', 'Matale', 'Nuwara Eliya'] },
+  { label: 'Southern Province', value: 'southern', districts: ['Galle', 'Matara', 'Hambantota'] },
+  { label: 'Northern & Eastern', value: 'north-east', districts: ['Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 'Mullaitivu', 'Trincomalee', 'Batticaloa', 'Ampara'] },
+];
+
 export default function DeliveryAreasPage() {
   const [search, setSearch] = useState('');
-  const filtered = SRI_LANKA_DISTRICTS.filter((d) =>
-    d.toLowerCase().includes(search.toLowerCase()),
-  );
+  const [activeProvince, setActiveProvince] = useState('all');
+
+  const filtered = SRI_LANKA_DISTRICTS.filter((d) => {
+    const matchesSearch = d.toLowerCase().includes(search.toLowerCase());
+    if (!matchesSearch) return false;
+    if (activeProvince === 'all') return true;
+    const prov = PROVINCES.find((p) => p.value === activeProvince);
+    return prov ? prov.districts.includes(d) : true;
+  });
 
   function getDeliverySpeed(district) {
     if (district === 'Puttalam') return { badge: '⚡ Same-Day / Home Base', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
