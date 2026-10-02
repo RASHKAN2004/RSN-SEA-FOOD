@@ -127,6 +127,13 @@ JWT_SECRET=your_secure_jwt_secret
 PORT=5000
 ADMIN_EMAIL=youremail@example.com
 ADMIN_PASSWORD=YourStrongPassword123
+
+# Required for checkout email OTP delivery (use an SMTP app password)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-sending-email@gmail.com
+EMAIL_PASS=your-smtp-app-password
+EMAIL_FROM="RSN Sea Food <your-sending-email@gmail.com>"
 ```
 
 Seed the product catalog:
