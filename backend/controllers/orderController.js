@@ -1,6 +1,8 @@
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const CheckoutEmailOtp = require("../models/CheckoutEmailOtp");
 
 function generateOrderNumber() {
   const year = new Date().getFullYear();
@@ -38,10 +40,11 @@ function validateCardSimulation({ cardNumber, expiry, cvv }) {
 // POST /api/orders
 async function createOrder(req, res, next) {
   try {
-    const { customer, shippingAddress, items, paymentMethod, card } = req.body;
+    const { customer, shippingAddress, items, paymentMethod, card, emailVerificationToken } = req.body;
     if (
       !customer?.name ||
       !customer?.phone ||
+      !customer?.email ||
       !shippingAddress?.address ||
       !shippingAddress?.city ||
       !items?.length
@@ -50,6 +53,30 @@ async function createOrder(req, res, next) {
         .status(400)
         .json({ success: false, message: "Missing required order fields" });
     }
+
+    const email = String(customer.email).trim().toLowerCase();
+    try {
+      const verification = jwt.verify(emailVerificationToken || "", process.env.JWT_SECRET);
+      if (
+        verification.purpose !== "checkout_email" ||
+        verification.userId !== String(req.user._id) ||
+        verification.email !== email ||
+        !verification.verificationId
+      ) throw new Error("Email verification does not match");
+      // Consume the verified OTP record, so a verification token can create
+      // only one order and cannot be replayed.
+      const consumed = await CheckoutEmailOtp.findOneAndDelete({
+        user: req.user._id,
+        email,
+        verificationId: verification.verificationId,
+        verifiedAt: { $exists: true },
+        expiresAt: { $gt: new Date() },
+      }).select("+verificationId");
+      if (!consumed) throw new Error("Email verification has expired or was already used");
+    } catch (_) {
+      return res.status(403).json({ success: false, message: "Verify this delivery email before placing the order" });
+    }
+    customer.email = email;
 
     if (
       !["card_simulation", "cash_on_delivery", "whatsapp_manual"].includes(
