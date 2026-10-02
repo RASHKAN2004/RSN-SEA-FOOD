@@ -36,6 +36,10 @@ export const api = {
   getBusiness: () => request("/meta/business"),
   createOrder: (payload) =>
     request("/orders", { method: "POST", body: JSON.stringify(payload) }),
+  requestCheckoutEmailOtp: (payload) =>
+    request("/orders/email-otp/request", { method: "POST", body: JSON.stringify(payload) }),
+  verifyCheckoutEmailOtp: (payload) =>
+    request("/orders/email-otp/verify", { method: "POST", body: JSON.stringify(payload) }),
   createInquiry: (payload) =>
     request("/inquiries", { method: "POST", body: JSON.stringify(payload) }),
   register: (payload) =>
