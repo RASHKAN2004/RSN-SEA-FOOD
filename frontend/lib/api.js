@@ -6,10 +6,20 @@ const API_ORIGIN =
 // or relative uploads from the backend (/uploads/products/x.jpg) — resolve the latter
 // to an absolute URL so <Image> can load it from the API server.
 export function resolveImageUrl(src) {
-  if (!src) return src;
-  if (src.startsWith("http://") || src.startsWith("https://")) return src;
-  if (src.startsWith("/uploads/")) return `${API_ORIGIN}${src}`;
-  return src;
+  if (!src || typeof src !== "string") return src;
+
+  const trimmed = src.trim();
+  if (!trimmed) return trimmed;
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("/uploads/")) return `${API_ORIGIN}${trimmed}`;
+  if (trimmed.startsWith("uploads/") || trimmed.startsWith("images/")) {
+    return `${API_ORIGIN}/${trimmed}`;
+  }
+
+  return trimmed;
 }
 
 async function request(path, options = {}) {
@@ -36,6 +46,14 @@ export const api = {
   getBusiness: () => request("/meta/business"),
   createOrder: (payload) =>
     request("/orders", { method: "POST", body: JSON.stringify(payload) }),
+  getOrder: (orderNumber) => request(`/orders/${orderNumber}`),
+  getPayHereHash: (payload) =>
+    request("/orders/payhere-hash", { method: "POST", body: JSON.stringify(payload) }),
+  confirmPayHereSuccess: (orderNumber, payload = {}) =>
+    request(`/orders/${orderNumber}/payhere-success`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
   requestCheckoutEmailOtp: (payload) =>
     request("/orders/email-otp/request", { method: "POST", body: JSON.stringify(payload) }),
   verifyCheckoutEmailOtp: (payload) =>

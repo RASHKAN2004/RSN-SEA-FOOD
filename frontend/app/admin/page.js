@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PlusCircle, Pencil, Trash2, Loader2, RefreshCw } from "lucide-react";
@@ -14,29 +14,41 @@ function AdminDashboardInner() {
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
 
-  async function loadProducts() {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await api.getProducts();
-      setProducts(res.products || []);
+      const res = await api.getProducts({ limit: 1000, page: 1 });
+      const nextProducts = Array.isArray(res?.products) ? res.products : [];
+      setProducts(nextProducts);
     } catch (err) {
       setError(err.message || "Failed to load products from the server.");
+      setProducts([]);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
 
   async function handleDelete(product) {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
-    setDeletingId(product._id);
+    const productId = product?._id || product?.id || product?.slug;
+    if (!productId) {
+      alert("This product is missing an id and cannot be removed.");
+      return;
+    }
+
+    if (!confirm(`Delete "${product.name || "this product"}"? This cannot be undone.`)) return;
+    setDeletingId(productId);
     try {
-      await api.adminDeleteProduct(product._id);
-      setProducts((prev) => prev.filter((p) => p._id !== product._id));
+      await api.adminDeleteProduct(productId);
+      setProducts((prev) =>
+        prev.filter(
+          (p) => (p._id || p.id || p.slug) !== productId,
+        ),
+      );
     } catch (err) {
       alert(err.message || "Delete failed");
     } finally {
@@ -55,11 +67,13 @@ function AdminDashboardInner() {
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={loadProducts}
-            className="btn-outline !px-3"
+            disabled={loading}
+            className="btn-outline !px-3 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="Refresh"
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           </button>
           <Link href="/admin/products/new" className="btn-primary">
             <PlusCircle size={16} /> Add Product
@@ -95,65 +109,70 @@ function AdminDashboardInner() {
               </tr>
             </thead>
             <tbody className="divide-y divide-sea-50">
-              {products.map((p) => (
-                <tr key={p._id}>
-                  <td className="flex items-center gap-3 px-4 py-3">
-                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-sea-50">
-                      {p.image && (
-                        <Image
-                          src={resolveImageUrl(p.image)}
-                          alt={p.name}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sea-900">{p.name}</p>
-                      {p.localName && (
-                        <p className="text-xs text-gray-500">{p.localName}</p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{p.category}</td>
-                  <td className="px-4 py-3 font-medium text-sea-900">
-                    {formatLKR(p.price)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        p.availability === "In Stock"
-                          ? "bg-green-100 text-green-700"
-                          : p.availability === "Seasonal Catch"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {p.availability}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Link
-                        href={`/admin/products/${p._id}/edit`}
-                        className="rounded-lg p-2 text-sea-600 hover:bg-sea-50"
-                        aria-label="Edit"
+              {products.map((p) => {
+                const productId = p._id || p.id || p.slug;
+                return (
+                  <tr key={productId || `${p.name}-${p.category}`}>
+                    <td className="flex items-center gap-3 px-4 py-3">
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-sea-50">
+                        {p.image && (
+                          <Image
+                            src={resolveImageUrl(p.image)}
+                            alt={p.name || "Product image"}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sea-900">{p.name}</p>
+                        {p.localName && (
+                          <p className="text-xs text-gray-500">{p.localName}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{p.category}</td>
+                    <td className="px-4 py-3 font-medium text-sea-900">
+                      {formatLKR(p.price)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          p.availability === "In Stock"
+                            ? "bg-green-100 text-green-700"
+                            : p.availability === "Seasonal Catch"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-gray-100 text-gray-500"
+                        }`}
                       >
-                        <Pencil size={16} />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(p)}
-                        disabled={deletingId === p._id}
-                        className="rounded-lg p-2 text-coral-600 hover:bg-coral-50"
-                        aria-label="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {p.availability}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        {productId ? (
+                          <Link
+                            href={`/admin/products/${productId}/edit`}
+                            className="rounded-lg p-2 text-sea-600 hover:bg-sea-50"
+                            aria-label="Edit"
+                          >
+                            <Pencil size={16} />
+                          </Link>
+                        ) : null}
+                        <button
+                          onClick={() => handleDelete(p)}
+                          disabled={deletingId === productId}
+                          className="rounded-lg p-2 text-coral-600 hover:bg-coral-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          aria-label="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

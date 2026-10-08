@@ -243,10 +243,11 @@ export default function Footer() {
             rights reserved.
           </p>
 
-          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+            <span className="rounded bg-white/10 px-2 py-0.5 text-slate-300">PayHere Sandbox</span>
+            <span className="rounded bg-white/10 px-2 py-0.5 text-slate-300">Visa / MasterCard</span>
             <span className="rounded bg-white/10 px-2 py-0.5 text-slate-300">Cash on Delivery</span>
             <span className="rounded bg-white/10 px-2 py-0.5 text-slate-300">WhatsApp Pay</span>
-            <span className="rounded bg-white/10 px-2 py-0.5 text-slate-300">Sub-Zero Packaging</span>
           </div>
         </div>
       </div>

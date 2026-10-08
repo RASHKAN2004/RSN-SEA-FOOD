@@ -26,7 +26,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "What payment methods are available?",
-    a: "We currently support Cash on Delivery and WhatsApp Order / Manual Confirmation. A simulated card payment option is also available at checkout.",
+    a: "We support online payments via PayHere Sandbox (Visa, MasterCard, FriMi, Genie, eZ Cash), Cash on Delivery, and direct WhatsApp order confirmation.",
   },
   {
     q: "How is the seafood packed?",

@@ -32,4 +32,18 @@ function adminOnly(req, res, next) {
   next();
 }
 
-module.exports = { generateToken, protect, adminOnly };
+async function optionalAuth(req, res, next) {
+  try {
+    const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (user) req.user = user;
+    }
+  } catch (_) {
+    // Ignore invalid token for optional authentication
+  }
+  next();
+}
+
+module.exports = { generateToken, protect, optionalAuth, adminOnly };

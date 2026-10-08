@@ -37,7 +37,8 @@ const OrderSchema = new mongoose.Schema(
     totalAmount: { type: Number, required: true, min: 0 },
     paymentMethod: {
       type: String,
-      enum: ["card_simulation", "cash_on_delivery", "whatsapp_manual"],
+      enum: ["payhere", "card_simulation", "cash_on_delivery", "whatsapp_manual"],
+      default: "payhere",
       required: true,
     },
     paymentStatus: {
@@ -45,6 +46,8 @@ const OrderSchema = new mongoose.Schema(
       enum: ["pending", "paid", "failed"],
       default: "pending",
     },
+    payherePaymentId: { type: String },
+    payhereStatusCode: { type: String },
     orderStatus: {
       type: String,
       enum: [
