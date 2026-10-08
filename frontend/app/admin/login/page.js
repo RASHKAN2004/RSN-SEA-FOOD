@@ -27,7 +27,11 @@ export default function AdminLoginPage() {
       }
       router.push("/admin");
     } catch (err) {
-      setError(err.message || "Login failed");
+      const message =
+        err?.message === "Request failed: 429" || /429/.test(err?.message || "")
+          ? "Too many login attempts. Please wait a few minutes and try again."
+          : err?.message || "Login failed";
+      setError(message);
     } finally {
       setSubmitting(false);
     }

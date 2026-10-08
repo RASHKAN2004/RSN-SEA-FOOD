@@ -51,12 +51,26 @@ app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 // Serve admin-uploaded product images (e.g. http://localhost:5000/uploads/products/xyz.jpg)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Rate limiting: 100 requests / 15 min per IP
+// Rate limiting: allow auth requests to remain responsive while still limiting abuse.
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    const authEndpoints = [
+      "/api/auth/login",
+      "/api/auth/forgot-password",
+      "/api/auth/reset-password",
+    ];
+    return authEndpoints.includes(req.originalUrl || req.path || "");
+  },
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: "Too many requests. Please wait a few minutes and try again.",
+    });
+  },
 });
 app.use("/api", limiter);
 
