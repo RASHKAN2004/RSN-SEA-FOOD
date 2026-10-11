@@ -37,9 +37,10 @@ async function getProducts(req, res, next) {
       ];
     }
 
+    const normalizedSort = (sort || "").replace(/-/g, "_");
     let query = Product.find(filter);
-    if (sort === "price_asc") query = query.sort({ price: 1 });
-    else if (sort === "price_desc") query = query.sort({ price: -1 });
+    if (normalizedSort === "price_asc") query = query.sort({ price: 1 });
+    else if (normalizedSort === "price_desc") query = query.sort({ price: -1 });
     else query = query.sort({ createdAt: -1 });
 
     const [products, total] = await Promise.all([

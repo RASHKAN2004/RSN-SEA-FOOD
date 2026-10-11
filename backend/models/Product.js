@@ -18,6 +18,7 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       enum: [
         "Tuna",
+        "Yellowfin Tuna",
         "Indian Mackerel",
         "Sail Fish",
         "Crab",
