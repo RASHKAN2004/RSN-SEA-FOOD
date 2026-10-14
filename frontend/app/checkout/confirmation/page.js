@@ -266,6 +266,12 @@ function ConfirmationContent() {
                 <ShoppingBag size={15} />
                 <span>Shop More Seafood</span>
               </Link>
+              <Link
+                href="/"
+                className="flex items-center justify-center gap-2 rounded-full border border-sea-200 bg-white px-5 py-3 text-xs font-bold text-sea-900 transition hover:bg-sea-50 sm:flex-1"
+              >
+                <span>Back to Home</span>
+              </Link>
             </div>
           </div>
         </div>
