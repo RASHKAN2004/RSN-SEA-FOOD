@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 const CartContext = createContext(null);
 const STORAGE_KEY = 'rsn_seafood_cart';
@@ -26,7 +33,7 @@ export function CartProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, loaded]);
 
-  function addItem(product, size, qty = 1) {
+  const addItem = useCallback((product, size, qty = 1) => {
     const unitPrice = Math.round(product.price * (size?.priceMultiplier || 1));
     const key = `${product.slug}__${size?.label || product.minimumQuantity}`;
     setItems((prev) => {
@@ -48,26 +55,33 @@ export function CartProvider({ children }) {
         },
       ];
     });
-  }
+  }, []);
 
-  function removeItem(key) {
+  const removeItem = useCallback((key) => {
     setItems((prev) => prev.filter((i) => i.key !== key));
-  }
+  }, []);
 
-  function updateQty(key, qty) {
+  const updateQty = useCallback((key, qty) => {
     if (qty < 1) return removeItem(key);
     setItems((prev) => prev.map((i) => (i.key === key ? { ...i, qty } : i)));
-  }
+  }, [removeItem]);
 
-  function clearCart() {
+  const clearCart = useCallback(() => {
     setItems([]);
-  }
+  }, []);
 
-  const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
-  const count = items.reduce((sum, i) => sum + i.qty, 0);
+  const subtotal = useMemo(
+    () => items.reduce((sum, i) => sum + i.unitPrice * i.qty, 0),
+    [items],
+  );
+  const count = useMemo(() => items.reduce((sum, i) => sum + i.qty, 0), [items]);
+  const value = useMemo(
+    () => ({ items, addItem, removeItem, updateQty, clearCart, subtotal, count }),
+    [items, addItem, removeItem, updateQty, clearCart, subtotal, count],
+  );
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, subtotal, count }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
