@@ -16,6 +16,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const inquiryRoutes = require("./routes/inquiryRoutes");
 const metaRoutes = require("./routes/metaRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const adminDashboardRoutes = require("./routes/adminDashboardRoutes");
 
 const app = express();
 const configuredClientOrigin = process.env.CLIENT_URL || "http://localhost:3000";
@@ -88,6 +89,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/admin", adminDashboardRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
