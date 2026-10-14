@@ -48,4 +48,30 @@ async function getInquiries(req, res, next) {
   }
 }
 
-module.exports = { createInquiry, getInquiries };
+// PUT /api/inquiries/:id/status (admin)
+async function updateInquiryStatus(req, res, next) {
+  try {
+    const { status } = req.body;
+    if (!["New", "Contacted", "Closed"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid inquiry status",
+      });
+    }
+    const inquiry = await Inquiry.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true },
+    );
+    if (!inquiry) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Inquiry not found" });
+    }
+    res.json({ success: true, inquiry });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { createInquiry, getInquiries, updateInquiryStatus };
