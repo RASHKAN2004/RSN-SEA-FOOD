@@ -47,6 +47,17 @@ export const api = {
   createOrder: (payload) =>
     request("/orders", { method: "POST", body: JSON.stringify(payload) }),
   getOrder: (orderNumber) => request(`/orders/${orderNumber}`),
+  getAdminDashboard: () => request("/admin/dashboard"),
+  updateAdminOrderStatus: (id, orderStatus) =>
+    request(`/orders/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ orderStatus }),
+    }),
+  updateAdminInquiryStatus: (id, status) =>
+    request(`/inquiries/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    }),
   getPayHereHash: (payload) =>
     request("/orders/payhere-hash", { method: "POST", body: JSON.stringify(payload) }),
   confirmPayHereSuccess: (orderNumber, payload = {}) =>
