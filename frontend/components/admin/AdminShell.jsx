@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, PlusCircle, LogOut, Loader2 } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Mail,
+  Package,
+  PlusCircle,
+  ShoppingBag,
+  LogOut,
+  Loader2,
+} from 'lucide-react';
 import { useAdminAuth } from '@/lib/useAdminAuth';
 import { api } from '@/lib/api';
 
@@ -36,7 +44,9 @@ export default function AdminShell({ children }) {
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin', label: 'Products', icon: Package },
+    { href: '/admin#orders', label: 'Orders', icon: ShoppingBag },
+    { href: '/admin#products', label: 'Products & Stock', icon: Package },
+    { href: '/admin#inquiries', label: 'Inquiries', icon: Mail },
     { href: '/admin/products/new', label: 'Add Product', icon: PlusCircle },
   ];
 
@@ -52,7 +62,9 @@ export default function AdminShell({ children }) {
                 key={label}
                 href={href}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 font-medium transition ${
-                  pathname === href ? 'bg-sea-50 text-sea-700' : 'text-gray-600 hover:bg-sea-50'
+                  pathname === href.split('#')[0] && (href === '/admin' || href === '/admin/products/new')
+                    ? 'bg-sea-50 text-sea-700'
+                    : 'text-gray-600 hover:bg-sea-50'
                 }`}
               >
                 <Icon size={16} /> {label}
