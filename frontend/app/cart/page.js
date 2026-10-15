@@ -19,7 +19,6 @@ import { formatLKR } from "@/data/products";
 import { fullOrderLink } from "@/lib/whatsapp";
 import { DEFAULT_DISTRICT } from "@/lib/districts";
 import { useRouter } from "next/navigation";
-import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
 
 const DELIVERY_FREE_THRESHOLD = 5000;
 const DELIVERY_FEE = 350;
@@ -27,7 +26,6 @@ const DELIVERY_FEE = 350;
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal } = useCart();
   const router = useRouter();
-  const { user, loading: authLoading } = useCustomerAuth();
 
   const deliveryFee =
     items.length === 0
@@ -42,15 +40,6 @@ export default function CartPage() {
     Math.round((subtotal / DELIVERY_FREE_THRESHOLD) * 100),
   );
   const remainingForFreeDelivery = Math.max(0, DELIVERY_FREE_THRESHOLD - subtotal);
-
-  function requireCustomer() {
-    if (authLoading) return false;
-    if (!user) {
-      router.push(signInPath("/cart"));
-      return false;
-    }
-    return true;
-  }
 
   if (items.length === 0) {
     return (
@@ -271,29 +260,21 @@ export default function CartPage() {
               <div className="mt-6 space-y-3">
                 <button
                   type="button"
-                  onClick={() => requireCustomer() && router.push("/checkout")}
-                  disabled={authLoading}
+                  onClick={() => router.push("/checkout")}
                   className="btn-primary w-full !rounded-full !py-3.5 text-sm font-bold shadow-lg shadow-coral-500/25"
                 >
                   Proceed to Checkout
                 </button>
 
                 <a
-                  href={
-                    user
-                      ? fullOrderLink({
-                          items: items.map((i) => ({
-                            name: i.name,
-                            localName: i.localName,
-                            quantity: `${i.qty} x ${i.sizeLabel}`,
-                          })),
-                          district: DEFAULT_DISTRICT,
-                        })
-                      : undefined
-                  }
-                  onClick={(event) => {
-                    if (!requireCustomer()) event.preventDefault();
-                  }}
+                  href={fullOrderLink({
+                    items: items.map((i) => ({
+                      name: i.name,
+                      localName: i.localName,
+                      quantity: `${i.qty} x ${i.sizeLabel}`,
+                    })),
+                    district: DEFAULT_DISTRICT,
+                  })}
                   target="_blank"
                   rel="noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 bg-emerald-50 py-3 text-sm font-bold text-emerald-800 transition hover:bg-emerald-600 hover:text-white shadow-sm"
