@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, notFound, useRouter } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -30,7 +30,6 @@ import {
 } from "@/lib/whatsapp";
 import DistrictSelector from "@/components/DistrictSelector";
 import { DEFAULT_DISTRICT } from "@/lib/districts";
-import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
 import ProductCard from "@/components/ProductCard";
 
 export default function ProductDetailPage() {
@@ -38,8 +37,6 @@ export default function ProductDetailPage() {
   const { products, loading } = useProducts();
   const product = products.find((p) => p.slug === slug);
   const { addItem } = useCart();
-  const { user, loading: authLoading } = useCustomerAuth();
-  const router = useRouter();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [sizeIdx, setSizeIdx] = useState(0);
@@ -61,6 +58,8 @@ export default function ProductDetailPage() {
   if (!loading && !product) return notFound();
   if (!product) return null;
 
+  const outOfStock =
+    product.availability === "Out of Stock" || Number(product.stockKg) <= 0;
   const currentImg = selectedImage || product.image;
   const size = product.sizes?.[sizeIdx];
   const unitPrice = Math.round(product.price * (size?.priceMultiplier || 1));
@@ -69,11 +68,6 @@ export default function ProductDetailPage() {
   const related = products.filter((p) => p.slug !== product.slug).slice(0, 4);
 
   function handleAddToCart() {
-    if (authLoading) return;
-    if (!user) {
-      router.push(signInPath(`/products/${product.slug}`));
-      return;
-    }
     addItem(product, size, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -213,8 +207,10 @@ export default function ProductDetailPage() {
               <span className="rounded-full bg-sea-100 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-sea-800">
                 {product.category}
               </span>
-              <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 size={14} /> {product.availability}
+              <span className={`text-xs font-semibold flex items-center gap-1 ${
+                outOfStock ? "text-rose-600" : "text-emerald-600"
+              }`}>
+                <CheckCircle2 size={14} /> {outOfStock ? "Out of Stock" : product.availability}
               </span>
             </div>
 
@@ -336,30 +332,20 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={authLoading}
-                className="btn-primary flex-1 !rounded-full !py-3.5 text-sm font-bold shadow-lg shadow-coral-500/25"
+                disabled={outOfStock}
+                className="btn-primary flex-1 !rounded-full !py-3.5 text-sm font-bold shadow-lg shadow-coral-500/25 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ShoppingCart size={18} />
-                <span>{added ? "✓ Added to Cart!" : "Add to Cart"}</span>
+                <span>{outOfStock ? "Out of Stock" : added ? "✓ Added to Cart!" : "Add to Cart"}</span>
               </button>
 
               <a
-                href={
-                  user
-                    ? productOrderLink({
-                        name: product.name,
-                        localName: product.localName,
-                        quantity: `${qty} x ${size?.label}`,
-                        district,
-                      })
-                    : undefined
-                }
-                onClick={(event) => {
-                  if (!user) {
-                    event.preventDefault();
-                    router.push(signInPath(`/products/${product.slug}`));
-                  }
-                }}
+                href={productOrderLink({
+                  name: product.name,
+                  localName: product.localName,
+                  quantity: `${qty} x ${size?.label}`,
+                  district,
+                })}
                 target="_blank"
                 rel="noreferrer"
                 className="flex flex-1 items-center justify-center gap-2 rounded-full border border-emerald-500 bg-emerald-50 px-6 py-3.5 text-sm font-bold text-emerald-800 transition hover:bg-emerald-600 hover:text-white shadow-sm"
