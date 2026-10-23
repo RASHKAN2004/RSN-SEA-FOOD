@@ -162,7 +162,7 @@ const culinaryInspirations = [
 
 export default function HomePage() {
   const homeRef = useRef(null);
-  const { products } = useProducts();
+  const { products, error: productsError } = useProducts();
   const { t } = useLanguage();
   const [activeSlide, setActiveSlide] = useState(0);
   const [selectedDistrict, setSelectedDistrict] = useState(DEFAULT_DISTRICT);
@@ -525,23 +525,35 @@ export default function HomePage() {
               href="/products"
               className="btn-outline hidden sm:inline-flex !py-2 text-xs hover-lift ml-2"
             >
-              {t("View All (14)")}
+              {t("View All Products")}
             </Link>
           </div>
         </div>
 
+        {productsError && (
+          <p role="status" className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            Live catalogue unavailable. Prices and availability may be out of date.
+          </p>
+        )}
+
         {/* Product Cards Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {filteredProducts.map((p, index) => (
-            <div
-              key={p.slug}
-              className="animate-fade-up"
-              style={{ animationDelay: `${index * 0.06}s` }}
-            >
-              <ProductCard product={p} />
-            </div>
-          ))}
-        </div>
+        {filteredProducts.length ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {filteredProducts.map((p, index) => (
+              <div
+                key={p.slug}
+                className="animate-fade-up"
+                style={{ animationDelay: `${index * 0.06}s` }}
+              >
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-gray-600">
+            No seafood products are available right now. Please check back soon or contact our team.
+          </p>
+        )}
 
         {/* Mobile View All Link */}
         <div className="mt-8 text-center sm:hidden">
