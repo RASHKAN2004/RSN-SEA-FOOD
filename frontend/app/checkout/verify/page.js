@@ -19,6 +19,7 @@ export default function CheckoutVerifyPage() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
   const [verified, setVerified] = useState(false);
   const [verificationToken, setVerificationToken] = useState("");
 
@@ -34,7 +35,7 @@ export default function CheckoutVerifyPage() {
         return;
       }
       setDraft(saved);
-      setStatus("A verification code was sent to your email. Check your inbox or spam folder.");
+      setStatus("Send a verification code to your email to continue.");
     } catch {
       router.replace("/checkout");
     }
@@ -84,7 +85,7 @@ export default function CheckoutVerifyPage() {
       const res = await api.createOrder({
         customer: { name: form.fullName, phone: form.mobile, whatsapp: form.whatsapp || form.mobile, email: form.email },
         shippingAddress: { address: form.address, city: form.city, district: form.district, postalCode: form.postalCode, deliveryInstructions: form.instructions, country: "Sri Lanka" },
-        items: items.map((item) => ({ slug: item.slug, sizeLabel: item.sizeLabel, quantityKg: item.qty })),
+        items: items.map((item) => ({ slug: item.slug, sizeLabel: item.sizeLabel, quantity: item.qty })),
         paymentMethod: form.paymentMethod,
         emailVerificationToken: verificationToken,
         card: form.paymentMethod === "card_simulation" ? { cardNumber: form.cardNumber, expiry: form.expiry, cvv: form.cvv } : undefined,
@@ -113,7 +114,7 @@ export default function CheckoutVerifyPage() {
 
         {!verified && (
           <button type="button" onClick={sendOtp} disabled={loading} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-sea-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-sea-800 disabled:opacity-60">
-            <Mail size={17} /> {loading ? "Sending..." : "Resend OTP"}
+            <Mail size={17} /> {loading ? "Sending..." : sent ? "Resend OTP" : "Send verification code"}
           </button>
         )}
 
