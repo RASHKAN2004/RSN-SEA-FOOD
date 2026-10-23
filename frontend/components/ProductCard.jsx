@@ -3,27 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ShoppingCart, Star, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { formatLKR } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { productOrderLink } from "@/lib/whatsapp";
 import { useLanguage } from "@/context/LanguageContext";
-import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const { t } = useLanguage();
-  const router = useRouter();
-  const { user, loading: authLoading } = useCustomerAuth();
-
-  function requireCustomer(action) {
-    if (authLoading) return;
-    if (!user) {
-      router.push(signInPath(`/products/${product.slug}`));
-      return;
-    }
-    action();
-  }
+  const outOfStock =
+    product.availability === "Out of Stock" || Number(product.stockKg) <= 0;
 
   // Determine freshness badge style
   const grade = product.freshnessGrade || "Daily Catch";
@@ -54,9 +43,13 @@ export default function ProductCard({ product }) {
           </span>
 
           {/* Availability Pill */}
-          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#061d22]/70 px-2 py-0.5 text-[9px] font-medium text-emerald-300 backdrop-blur-md border border-emerald-500/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Kalpitiya
+          <span className={`absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium backdrop-blur-md border ${
+            outOfStock
+              ? "bg-rose-950/80 text-rose-200 border-rose-400/30"
+              : "bg-[#061d22]/70 text-emerald-300 border-emerald-500/20"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${outOfStock ? "bg-rose-400" : "bg-emerald-400"}`} />
+            {outOfStock ? "Out of stock" : product.availability || "In stock"}
           </span>
         </div>
       </Link>
@@ -110,33 +103,22 @@ export default function ProductCard({ product }) {
             </Link>
 
             <button
-              onClick={() =>
-                requireCustomer(() => addItem(product, product.sizes?.[0]))
-              }
-              disabled={authLoading}
-              className="btn-primary !rounded-full !py-2 !px-3 text-xs font-semibold tracking-wide"
+              type="button"
+              onClick={() => addItem(product, product.sizes?.[0])}
+              disabled={outOfStock}
+              className="btn-primary !rounded-full !py-2 !px-3 text-xs font-semibold tracking-wide disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <ShoppingCart size={13} /> {t("Add")}
+              <ShoppingCart size={13} /> {outOfStock ? t("Unavailable") : t("Add")}
             </button>
           </div>
 
           <a
-            href={
-              user
-                ? productOrderLink({
-                    name: product.name,
-                    localName: product.localName,
-                    quantity: product.minimumQuantity,
-                  })
-                : undefined
-            }
-            onClick={(event) => {
-              if (!user) {
-                event.preventDefault();
-                router.push(signInPath(`/products/${product.slug}`));
-              }
-            }}
+            href={productOrderLink({
+              name: product.name,
+              localName: product.localName,
+              quantity: product.minimumQuantity,
+            })}
             target="_blank"
             rel="noreferrer"
             className="flex items-center justify-center gap-2 rounded-full border border-emerald-500/50 bg-emerald-50/70 py-2 px-3 text-xs font-semibold text-emerald-800 transition duration-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 shadow-sm active:scale-95"
@@ -149,4 +131,3 @@ export default function ProductCard({ product }) {
     </div>
   );
 }
-
