@@ -5,8 +5,6 @@ const {
   getMyOrders,
   updateOrderStatus,
   handlePayHereNotify,
-  confirmPayHereSuccess,
-  getPayHereHash,
 } = require("../controllers/orderController");
 const { protect, optionalAuth, adminOnly } = require("../middleware/auth");
 const {
@@ -42,8 +40,6 @@ const otpVerifyLimiter = rateLimit({
 
 // PayHere payment gateway routes (ICT2142 Practical 06)
 router.post("/payhere-notify", handlePayHereNotify);
-router.post("/payhere-hash", getPayHereHash);
-router.patch("/:orderNumber/payhere-success", confirmPayHereSuccess);
 
 // Verification routes
 router.post("/email-otp/request", protect, otpRequestLimiter, requestEmailOtp);
