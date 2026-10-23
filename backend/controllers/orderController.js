@@ -387,7 +387,6 @@ module.exports = {
   getOrder,
   getMyOrders,
   updateOrderStatus,
-  getPayHereHash,
   handlePayHereNotify,
   generatePayHereHash,
 };
