@@ -21,7 +21,7 @@ export const metadata = {
     type: 'website',
     locale: 'en_LK',
   },
-  metadataBase: new URL('https://rsnseafood.example.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
 };
 
 export const viewport = {
