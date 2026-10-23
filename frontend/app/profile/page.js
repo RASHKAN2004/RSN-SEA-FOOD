@@ -24,6 +24,7 @@ import {
 import { api } from "@/lib/api";
 import { DEFAULT_DISTRICT, SRI_LANKA_DISTRICTS } from "@/lib/districts";
 import { WHATSAPP_DISPLAY, generalOrderLink } from "@/lib/whatsapp";
+import { formatLKR } from "@/data/products";
 
 const emptyForm = {
   name: "",
@@ -42,6 +43,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
 
   useEffect(() => {
     api
@@ -62,6 +66,25 @@ export default function ProfilePage() {
       .catch(() => setError("Please sign in to view your profile."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    api
+      .getMyOrders()
+      .then((result) => {
+        if (active) setOrders(Array.isArray(result.orders) ? result.orders : []);
+      })
+      .catch((err) => {
+        if (active) setOrdersError(err.message || "Order history could not be loaded.");
+      })
+      .finally(() => {
+        if (active) setOrdersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   function updateField(event) {
     setForm((current) => ({
@@ -443,6 +466,67 @@ export default function ProfilePage() {
               </div>
             </form>
           </div>
+        </div>
+
+        <div className="mt-10 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-sea-950">My orders</h2>
+              <p className="mt-1 text-sm text-gray-500">Review your recent purchases and current order status.</p>
+            </div>
+            <Link href="/products" className="text-sm font-bold text-sea-700 hover:text-coral-600">
+              Shop seafood →
+            </Link>
+          </div>
+          {ordersError && (
+            <p role="alert" className="mt-4 rounded-xl bg-coral-50 p-3 text-sm text-coral-700">{ordersError}</p>
+          )}
+          {ordersLoading ? (
+            <p className="py-8 text-center text-sm text-gray-500">Loading your orders…</p>
+          ) : orders.length ? (
+            <div className="mt-4 space-y-3">
+              {orders.map((order) => (
+                <article key={order._id} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-mono text-sm font-bold text-sea-900">{order.orderNumber}</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-LK", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        }) : "Date unavailable"}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full bg-sea-100 px-3 py-1 text-xs font-semibold text-sea-800">
+                        {order.orderStatus || "Pending"}
+                      </span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        order.paymentStatus === "paid"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : order.paymentStatus === "failed"
+                            ? "bg-rose-100 text-rose-800"
+                            : "bg-amber-100 text-amber-800"
+                      }`}>
+                        Payment: {order.paymentStatus || "pending"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                    <p className="text-xs text-gray-600">
+                      {(order.items || []).map((item) =>
+                        `${item.name} × ${item.quantity || item.quantityKg} ${item.sizeLabel || "kg"}`,
+                      ).join(", ")}
+                    </p>
+                    <p className="text-sm font-bold text-sea-950">{formatLKR(order.totalAmount || 0)}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-gray-500">You have not placed any orders yet.</p>
+          )}
         </div>
       </section>
     </div>
