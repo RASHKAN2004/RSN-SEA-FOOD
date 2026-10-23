@@ -47,6 +47,7 @@ export const api = {
   createOrder: (payload) =>
     request("/orders", { method: "POST", body: JSON.stringify(payload) }),
   getOrder: (orderNumber) => request(`/orders/${orderNumber}`),
+  getMyOrders: () => request("/orders/mine"),
   getAdminDashboard: () => request("/admin/dashboard"),
   updateAdminOrderStatus: (id, orderStatus) =>
     request(`/orders/${id}/status`, {
@@ -57,13 +58,6 @@ export const api = {
     request(`/inquiries/${id}/status`, {
       method: "PUT",
       body: JSON.stringify({ status }),
-    }),
-  getPayHereHash: (payload) =>
-    request("/orders/payhere-hash", { method: "POST", body: JSON.stringify(payload) }),
-  confirmPayHereSuccess: (orderNumber, payload = {}) =>
-    request(`/orders/${orderNumber}/payhere-success`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
     }),
   requestCheckoutEmailOtp: (payload) =>
     request("/orders/email-otp/request", { method: "POST", body: JSON.stringify(payload) }),
