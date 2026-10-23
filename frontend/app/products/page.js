@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, SlidersHorizontal, ArrowUpDown, Sparkles, Fish, ShieldCheck } from 'lucide-react';
@@ -13,10 +13,14 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const category = searchParams.get('category');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [sortBy, setSortBy] = useState('featured');
-  const { products, loading } = useProducts();
+  const { products, loading, error } = useProducts();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     let result = products.filter((p) => {
@@ -82,6 +86,11 @@ function ProductsContent() {
 
       {/* Main Catalog Section */}
       <section className="mx-auto max-w-7xl px-4 pt-8 lg:px-8">
+        {error && (
+          <p role="status" className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            Live catalogue unavailable. Showing the sample catalog; prices and availability may be out of date.
+          </p>
+        )}
         {/* Controls Toolbar: Search & Sort */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
           {/* Search Input with Clear Button */}
@@ -171,7 +180,11 @@ function ProductsContent() {
         )}
 
         {/* Products Grid */}
-        {filtered.length === 0 ? (
+        {loading && products.length === 0 ? (
+          <div className="my-8 flex justify-center rounded-3xl border border-slate-200 bg-white py-16">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-sea-500 border-t-transparent" role="status" aria-label="Loading products" />
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center my-8 shadow-sm">
             <Fish size={44} className="mx-auto text-sea-300 mb-3" />
             <h3 className="font-display text-2xl font-bold text-sea-950">No seafood products found</h3>
