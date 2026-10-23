@@ -6,11 +6,14 @@ import Link from "next/link";
 import {
   AlertTriangle,
   Banknote,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
   Mail,
   Package,
   PlusCircle,
   RefreshCw,
+  Search,
   ShoppingBag,
   Trash2,
   Users,
@@ -61,10 +64,15 @@ function SectionHeading({ title, description, href, linkLabel }) {
     <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
       <div>
         <h2 className="font-display text-lg font-bold text-sea-950">{title}</h2>
-        {description && <p className="mt-0.5 text-xs text-gray-500">{description}</p>}
+        {description && (
+          <p className="mt-0.5 text-xs text-gray-500">{description}</p>
+        )}
       </div>
       {href && (
-        <Link href={href} className="text-xs font-bold text-sea-700 hover:text-coral-600">
+        <Link
+          href={href}
+          className="text-xs font-bold text-sea-700 hover:text-coral-600"
+        >
           {linkLabel}
         </Link>
       )}
@@ -73,7 +81,16 @@ function SectionHeading({ title, description, href, linkLabel }) {
 }
 
 function statusTone(status) {
-  if (["Delivered", "Confirmed", "paid", "Contacted", "Closed", "In Stock"].includes(status)) {
+  if (
+    [
+      "Delivered",
+      "Confirmed",
+      "paid",
+      "Contacted",
+      "Closed",
+      "In Stock",
+    ].includes(status)
+  ) {
     return "bg-emerald-50 text-emerald-700";
   }
   if (["Pending", "New", "Cold Packing", "Seasonal Catch"].includes(status)) {
@@ -101,47 +118,109 @@ function safeArray(value) {
 
 function moveStatusCount(statuses, fromStatus, toStatus) {
   if (!fromStatus || fromStatus === toStatus) return safeArray(statuses);
-  const counts = new Map(safeArray(statuses).map(({ _id, count }) => [_id, count]));
+  const counts = new Map(
+    safeArray(statuses).map(({ _id, count }) => [_id, count]),
+  );
   counts.set(fromStatus, Math.max(0, (counts.get(fromStatus) || 0) - 1));
   if (toStatus) counts.set(toStatus, (counts.get(toStatus) || 0) + 1);
-  return Array.from(counts, ([_id, count]) => ({ _id, count })).filter(({ count }) => count > 0);
+  return Array.from(counts, ([_id, count]) => ({ _id, count })).filter(
+    ({ count }) => count > 0,
+  );
 }
 
 function AdminDashboardInner() {
   const [dashboard, setDashboard] = useState(null);
   const [products, setProducts] = useState([]);
+  const [productCategories, setProductCategories] = useState([]);
+  const [productSearch, setProductSearch] = useState("");
+  const [productCategory, setProductCategory] = useState("");
+  const [productPage, setProductPage] = useState(1);
+  const [productTotal, setProductTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [productError, setProductError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [updatingInquiryId, setUpdatingInquiryId] = useState(null);
+  const [productsRefreshKey, setProductsRefreshKey] = useState(0);
+  const productsPerPage = 10;
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError("");
-    const [dashboardResult, productResult] = await Promise.allSettled([
-      api.getAdminDashboard(),
-      api.getProducts({ limit: 50, page: 1 }),
-    ]);
-
-    const errors = [];
-    if (dashboardResult.status === "fulfilled") {
-      setDashboard(dashboardResult.value?.dashboard || null);
-    } else {
-      errors.push(dashboardResult.reason?.message || "Failed to load store analytics.");
+    try {
+      const result = await api.getAdminDashboard();
+      setDashboard(result?.dashboard || null);
+    } catch (err) {
+      setError(err.message || "Failed to load store analytics.");
+    } finally {
+      setLoading(false);
     }
-    if (productResult.status === "fulfilled") {
-      setProducts(Array.isArray(productResult.value?.products) ? productResult.value.products : []);
-    } else {
-      errors.push(productResult.reason?.message || "Failed to load products.");
-    }
-    if (errors.length) setError(errors.join(" "));
-    setLoading(false);
   }, []);
 
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadProducts() {
+      setProductsLoading(true);
+      setProductError("");
+      try {
+        const [productsResult, categoriesResult] = await Promise.allSettled([
+          api.getProducts({
+            limit: productsPerPage,
+            page: productPage,
+            ...(productSearch.trim() ? { search: productSearch.trim() } : {}),
+            ...(productCategory ? { category: productCategory } : {}),
+          }),
+          productCategories.length
+            ? Promise.resolve(null)
+            : api.getCategories(),
+        ]);
+        if (!active) return;
+        if (productsResult.status === "rejected") {
+          throw productsResult.reason;
+        }
+        setProducts(
+          Array.isArray(productsResult.value?.products)
+            ? productsResult.value.products
+            : [],
+        );
+        setProductTotal(Number(productsResult.value?.total) || 0);
+        if (
+          categoriesResult.status === "fulfilled" &&
+          Array.isArray(categoriesResult.value?.categories)
+        ) {
+          setProductCategories(categoriesResult.value.categories);
+        } else if (categoriesResult.status === "rejected") {
+          setProductError(
+            categoriesResult.reason?.message ||
+              "Product categories could not be loaded.",
+          );
+        }
+      } catch (err) {
+        if (active) setProductError(err.message || "Failed to load products.");
+      } finally {
+        if (active) setProductsLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      active = false;
+    };
+  }, [
+    productCategory,
+    productPage,
+    productSearch,
+    productCategories.length,
+    productsPerPage,
+    productsRefreshKey,
+  ]);
 
   async function handleDelete(product) {
     const productId = product?._id || product?.id || product?.slug;
@@ -149,28 +228,49 @@ function AdminDashboardInner() {
       setError("This product is missing an id and cannot be removed.");
       return;
     }
-    if (!confirm(`Delete "${product.name || "this product"}"? This cannot be undone.`)) return;
+    if (
+      !confirm(
+        `Delete "${product.name || "this product"}"? This cannot be undone.`,
+      )
+    )
+      return;
     setDeletingId(productId);
     setError("");
     try {
       await api.adminDeleteProduct(productId);
-      setProducts((previous) => previous.filter((item) => (item._id || item.id || item.slug) !== productId));
-      const removedProduct = products.find((item) => (item._id || item.id || item.slug) === productId);
-      setDashboard((previous) => previous
-        ? {
-            ...previous,
-            products: {
-              ...previous.products,
-              total: Math.max(0, (previous.products?.total || 0) - 1),
-              availability: moveStatusCount(
-                previous.products?.availability,
-                removedProduct?.availability,
-                null,
-              ),
-              lowStock: safeArray(previous.products?.lowStock).filter((item) => item._id !== productId),
-            },
-          }
-        : previous);
+      setProducts((previous) =>
+        previous.filter(
+          (item) => (item._id || item.id || item.slug) !== productId,
+        ),
+      );
+      setProductTotal((total) => Math.max(0, total - 1));
+      if (products.length === 1 && productPage > 1) {
+        setProductPage((page) => page - 1);
+      } else {
+        setProductsRefreshKey((key) => key + 1);
+      }
+      const removedProduct = products.find(
+        (item) => (item._id || item.id || item.slug) === productId,
+      );
+      setDashboard((previous) =>
+        previous
+          ? {
+              ...previous,
+              products: {
+                ...previous.products,
+                total: Math.max(0, (previous.products?.total || 0) - 1),
+                availability: moveStatusCount(
+                  previous.products?.availability,
+                  removedProduct?.availability,
+                  null,
+                ),
+                lowStock: safeArray(previous.products?.lowStock).filter(
+                  (item) => item._id !== productId,
+                ),
+              },
+            }
+          : previous,
+      );
     } catch (err) {
       setError(err.message || "Product could not be deleted.");
     } finally {
@@ -183,22 +283,26 @@ function AdminDashboardInner() {
     setError("");
     try {
       const response = await api.updateAdminOrderStatus(orderId, orderStatus);
-      setDashboard((previous) => previous
-        ? {
-            ...previous,
-            orders: {
-              ...previous.orders,
-              statuses: moveStatusCount(
-                previous.orders?.statuses,
-                safeArray(previous.orders?.recent).find((order) => order._id === orderId)?.orderStatus,
-                orderStatus,
-              ),
-              recent: safeArray(previous.orders?.recent).map((order) =>
-                order._id === orderId ? response.order : order,
-              ),
-            },
-          }
-        : previous);
+      setDashboard((previous) =>
+        previous
+          ? {
+              ...previous,
+              orders: {
+                ...previous.orders,
+                statuses: moveStatusCount(
+                  previous.orders?.statuses,
+                  safeArray(previous.orders?.recent).find(
+                    (order) => order._id === orderId,
+                  )?.orderStatus,
+                  orderStatus,
+                ),
+                recent: safeArray(previous.orders?.recent).map((order) =>
+                  order._id === orderId ? response.order : order,
+                ),
+              },
+            }
+          : previous,
+      );
     } catch (err) {
       setError(err.message || "Order status could not be updated.");
     } finally {
@@ -211,22 +315,26 @@ function AdminDashboardInner() {
     setError("");
     try {
       const response = await api.updateAdminInquiryStatus(inquiryId, status);
-      setDashboard((previous) => previous
-        ? {
-            ...previous,
-            inquiries: {
-              ...previous.inquiries,
-              statuses: moveStatusCount(
-                previous.inquiries?.statuses,
-                safeArray(previous.inquiries?.recent).find((inquiry) => inquiry._id === inquiryId)?.status,
-                status,
-              ),
-              recent: safeArray(previous.inquiries?.recent).map((inquiry) =>
-                inquiry._id === inquiryId ? response.inquiry : inquiry,
-              ),
-            },
-          }
-        : previous);
+      setDashboard((previous) =>
+        previous
+          ? {
+              ...previous,
+              inquiries: {
+                ...previous.inquiries,
+                statuses: moveStatusCount(
+                  previous.inquiries?.statuses,
+                  safeArray(previous.inquiries?.recent).find(
+                    (inquiry) => inquiry._id === inquiryId,
+                  )?.status,
+                  status,
+                ),
+                recent: safeArray(previous.inquiries?.recent).map((inquiry) =>
+                  inquiry._id === inquiryId ? response.inquiry : inquiry,
+                ),
+              },
+            }
+          : previous,
+      );
     } catch (err) {
       setError(err.message || "Inquiry status could not be updated.");
     } finally {
@@ -257,13 +365,17 @@ function AdminDashboardInner() {
           </p>
           <h1 className="section-title mt-1">E-commerce Dashboard</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Sales, orders, customers, products, inventory, and customer inquiries in one place.
+            Sales, orders, customers, products, inventory, and customer
+            inquiries in one place.
           </p>
         </div>
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={loadDashboard}
+            onClick={() => {
+              loadDashboard();
+              setProductsRefreshKey((key) => key + 1);
+            }}
             disabled={loading}
             className="btn-outline !px-3 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="Refresh dashboard"
@@ -278,7 +390,10 @@ function AdminDashboardInner() {
       </header>
 
       {error && (
-        <p role="alert" className="rounded-xl bg-coral-50 p-3 text-sm text-coral-700">
+        <p
+          role="alert"
+          className="rounded-xl bg-coral-50 p-3 text-sm text-coral-700"
+        >
           {error}
         </p>
       )}
@@ -320,7 +435,10 @@ function AdminDashboardInner() {
           </section>
 
           <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <div id="orders" className="min-w-0 rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
+            <div
+              id="orders"
+              className="min-w-0 rounded-2xl border border-sea-100 bg-white p-5 shadow-sm"
+            >
               <SectionHeading
                 title="Recent orders"
                 description="Review customer, payment, delivery area, and fulfillment status."
@@ -341,32 +459,58 @@ function AdminDashboardInner() {
                       {recentOrders.map((order) => (
                         <tr key={order._id}>
                           <td className="py-3 pr-3">
-                            <p className="font-bold text-sea-900">{order.orderNumber}</p>
-                            <p className="mt-1 text-gray-500">{formatDate(order.createdAt)}</p>
+                            <p className="font-bold text-sea-900">
+                              {order.orderNumber}
+                            </p>
+                            <p className="mt-1 text-gray-500">
+                              {formatDate(order.createdAt)}
+                            </p>
                             <p className="mt-1 max-w-[190px] text-gray-600">
-                              {(order.items || []).map((item) => `${item.name} × ${item.quantityKg}kg`).join(", ") || "No item details"}
+                              {(order.items || [])
+                                .map(
+                                  (item) =>
+                                    `${item.name} × ${item.quantityKg}kg`,
+                                )
+                                .join(", ") || "No item details"}
                             </p>
                           </td>
                           <td className="py-3 pr-3">
-                            <p className="font-semibold text-gray-800">{order.customer?.name || "Guest"}</p>
-                            <p className="mt-1 text-gray-500">{order.customer?.phone || order.customer?.email}</p>
+                            <p className="font-semibold text-gray-800">
+                              {order.customer?.name || "Guest"}
+                            </p>
+                            <p className="mt-1 text-gray-500">
+                              {order.customer?.phone || order.customer?.email}
+                            </p>
                           </td>
-                          <td className="py-3 pr-3 text-gray-600">{order.shippingAddress?.district || "—"}</td>
+                          <td className="py-3 pr-3 text-gray-600">
+                            {order.shippingAddress?.district || "—"}
+                          </td>
                           <td className="py-3 pr-3">
-                            <p className="font-bold text-sea-900">{formatLKR(order.totalAmount)}</p>
-                            <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 ${statusTone(order.paymentStatus)}`}>
+                            <p className="font-bold text-sea-900">
+                              {formatLKR(order.totalAmount)}
+                            </p>
+                            <span
+                              className={`mt-1 inline-flex rounded-full px-2 py-0.5 ${statusTone(order.paymentStatus)}`}
+                            >
                               {order.paymentStatus || "pending"}
                             </span>
                           </td>
                           <td className="py-3">
                             <select
                               value={order.orderStatus}
-                              onChange={(event) => handleOrderStatusChange(order._id, event.target.value)}
+                              onChange={(event) =>
+                                handleOrderStatusChange(
+                                  order._id,
+                                  event.target.value,
+                                )
+                              }
                               disabled={updatingOrderId === order._id}
                               aria-label={`Update order ${order.orderNumber} status`}
                               className="max-w-[150px] rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-sea-900 disabled:opacity-60"
                             >
-                              {ORDER_STATUSES.map((status) => <option key={status}>{status}</option>)}
+                              {ORDER_STATUSES.map((status) => (
+                                <option key={status}>{status}</option>
+                              ))}
                             </select>
                           </td>
                         </tr>
@@ -375,53 +519,93 @@ function AdminDashboardInner() {
                   </table>
                 </div>
               ) : (
-                <p className="rounded-xl bg-slate-50 p-6 text-center text-sm text-gray-500">No orders have been placed yet.</p>
+                <p className="rounded-xl bg-slate-50 p-6 text-center text-sm text-gray-500">
+                  No orders have been placed yet.
+                </p>
               )}
             </div>
 
             <div className="space-y-6">
               <div className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
-                <SectionHeading title="Order status" description="Current fulfillment workload" />
+                <SectionHeading
+                  title="Order status"
+                  description="Current fulfillment workload"
+                />
                 <div className="space-y-3">
-                  {safeArray(data?.orders?.statuses).length ? safeArray(data?.orders?.statuses).map(({ _id, count }) => (
-                    <div key={_id} className="flex items-center justify-between gap-3 text-xs">
-                      <span className={`rounded-full px-2.5 py-1 font-semibold ${statusTone(_id)}`}>{_id}</span>
-                      <span className="font-bold text-sea-950">{count}</span>
-                    </div>
-                  )) : <p className="text-sm text-gray-500">No order status data available.</p>}
+                  {safeArray(data?.orders?.statuses).length ? (
+                    safeArray(data?.orders?.statuses).map(({ _id, count }) => (
+                      <div
+                        key={_id}
+                        className="flex items-center justify-between gap-3 text-xs"
+                      >
+                        <span
+                          className={`rounded-full px-2.5 py-1 font-semibold ${statusTone(_id)}`}
+                        >
+                          {_id}
+                        </span>
+                        <span className="font-bold text-sea-950">{count}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No order status data available.
+                    </p>
+                  )}
                 </div>
                 <div className="mt-5 border-t border-slate-100 pt-4">
-                  <p className="mb-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">Payment status</p>
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+                    Payment status
+                  </p>
                   <div className="flex flex-wrap gap-2">
-                    {safeArray(data?.orders?.paymentStatuses).map(({ _id, count }) => (
-                      <span key={_id} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}>
-                        {_id}: {count}
-                      </span>
-                    ))}
+                    {safeArray(data?.orders?.paymentStatuses).map(
+                      ({ _id, count }) => (
+                        <span
+                          key={_id}
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}
+                        >
+                          {_id}: {count}
+                        </span>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
 
               <div className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
-                <SectionHeading title="Best-selling seafood" description="Ranked by ordered weight" />
+                <SectionHeading
+                  title="Best-selling seafood"
+                  description="Ranked by ordered weight"
+                />
                 <div className="space-y-4">
-                  {topProducts.length ? topProducts.map((product) => (
-                    <div key={product._id}>
-                      <div className="mb-1 flex justify-between gap-3 text-xs">
-                        <span className="truncate font-semibold text-sea-900">{product._id}</span>
-                        <span className="shrink-0 text-gray-500">{product.quantityKg} kg</span>
+                  {topProducts.length ? (
+                    topProducts.map((product) => (
+                      <div key={product._id}>
+                        <div className="mb-1 flex justify-between gap-3 text-xs">
+                          <span className="truncate font-semibold text-sea-900">
+                            {product._id}
+                          </span>
+                          <span className="shrink-0 text-gray-500">
+                            {product.quantityKg} kg
+                          </span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-sea-50">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-sea-600 to-teal-400"
+                            style={{
+                              width: `${Math.max(6, ((Number(product.quantityKg) || 0) / maxTopProductQuantity) * 100)}%`,
+                            }}
+                          />
+                        </div>
+                        <p className="mt-1 text-right text-[10px] text-gray-500">
+                          Paid sales {formatLKR(product.revenue)}
+                        </p>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-sea-50">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-sea-600 to-teal-400"
-                          style={{ width: `${Math.max(6, ((Number(product.quantityKg) || 0) / maxTopProductQuantity) * 100)}%` }}
-                        />
-                      </div>
-                      <p className="mt-1 text-right text-[10px] text-gray-500">
-                        Paid sales {formatLKR(product.revenue)}
-                      </p>
-                    </div>
-                  )) : <p className="text-sm text-gray-500">Sales data will appear after orders arrive.</p>}
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      Sales data will appear after orders arrive.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -431,16 +615,21 @@ function AdminDashboardInner() {
             <div className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
               <SectionHeading
                 title="Inventory & products"
-                description={`Showing ${products.length} of ${productsData.total || 0} products`}
+                description={`${productTotal} products in the catalogue`}
                 href="#products"
                 linkLabel="Manage products ↓"
               />
               <div className="mb-4 flex flex-wrap gap-2">
-                {safeArray(data?.products?.availability).map(({ _id, count }) => (
-                  <span key={_id} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}>
-                    {_id}: {count}
-                  </span>
-                ))}
+                {safeArray(data?.products?.availability).map(
+                  ({ _id, count }) => (
+                    <span
+                      key={_id}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}
+                    >
+                      {_id}: {count}
+                    </span>
+                  ),
+                )}
               </div>
               {safeArray(productsData.lowStock).length ? (
                 <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
@@ -449,7 +638,10 @@ function AdminDashboardInner() {
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {safeArray(productsData.lowStock).map((product) => (
-                      <span key={product._id} className="rounded-lg bg-white px-2.5 py-1.5 text-xs text-amber-900">
+                      <span
+                        key={product._id}
+                        className="rounded-lg bg-white px-2.5 py-1.5 text-xs text-amber-900"
+                      >
                         {product.name}: <strong>{product.stockKg} kg</strong>
                       </span>
                     ))}
@@ -461,6 +653,52 @@ function AdminDashboardInner() {
                 </p>
               )}
               <div id="products" className="overflow-x-auto">
+                <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(170px,220px)]">
+                  <label className="relative block">
+                    <Search
+                      size={16}
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                    <input
+                      type="search"
+                      value={productSearch}
+                      onChange={(event) => {
+                        setProductSearch(event.target.value);
+                        setProductPage(1);
+                      }}
+                      placeholder="Search products by name or category"
+                      aria-label="Search products"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                    />
+                  </label>
+                  <label className="sr-only" htmlFor="product-category-filter">
+                    Filter products by category
+                  </label>
+                  <select
+                    id="product-category-filter"
+                    value={productCategory}
+                    onChange={(event) => {
+                      setProductCategory(event.target.value);
+                      setProductPage(1);
+                    }}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                  >
+                    <option value="">All categories</option>
+                    {productCategories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {productError && (
+                  <p
+                    role="alert"
+                    className="mb-3 rounded-xl bg-coral-50 p-3 text-sm text-coral-700"
+                  >
+                    {productError}
+                  </p>
+                )}
                 {products.length ? (
                   <table className="w-full min-w-[500px] text-left text-xs">
                     <thead className="border-b border-sea-100 text-[10px] uppercase text-gray-500">
@@ -475,7 +713,8 @@ function AdminDashboardInner() {
                     </thead>
                     <tbody className="divide-y divide-sea-50">
                       {products.map((product) => {
-                        const productId = product._id || product.id || product.slug;
+                        const productId =
+                          product._id || product.id || product.slug;
                         return (
                           <tr key={productId}>
                             <td className="py-2.5 pr-3">
@@ -491,14 +730,24 @@ function AdminDashboardInner() {
                                     />
                                   )}
                                 </div>
-                                <span className="font-semibold text-sea-900">{product.name}</span>
+                                <span className="font-semibold text-sea-900">
+                                  {product.name}
+                                </span>
                               </div>
                             </td>
-                            <td className="py-2.5 pr-3 text-gray-600">{product.category}</td>
-                            <td className="py-2.5 pr-3 font-semibold text-gray-700">{formatLKR(product.price)}</td>
-                            <td className="py-2.5 pr-3 text-gray-600">{product.stockKg ?? 0} kg</td>
+                            <td className="py-2.5 pr-3 text-gray-600">
+                              {product.category}
+                            </td>
+                            <td className="py-2.5 pr-3 font-semibold text-gray-700">
+                              {formatLKR(product.price)}
+                            </td>
+                            <td className="py-2.5 pr-3 text-gray-600">
+                              {product.stockKg ?? 0} kg
+                            </td>
                             <td className="py-2.5">
-                              <span className={`rounded-full px-2 py-1 ${statusTone(product.availability)}`}>
+                              <span
+                                className={`rounded-full px-2 py-1 ${statusTone(product.availability)}`}
+                              >
                                 {product.availability}
                               </span>
                             </td>
@@ -529,8 +778,49 @@ function AdminDashboardInner() {
                   </table>
                 ) : (
                   <p className="rounded-xl bg-slate-50 p-5 text-center text-sm text-gray-500">
-                    {loading ? "Loading products…" : "No products found."}
+                    {productsLoading
+                      ? "Loading products…"
+                      : productSearch || productCategory
+                        ? "No products match these filters."
+                        : "No products found."}
                   </p>
+                )}
+                {productTotal > productsPerPage && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                    <p className="text-xs text-gray-500">
+                      Showing {(productPage - 1) * productsPerPage + 1}–
+                      {Math.min(productPage * productsPerPage, productTotal)} of{" "}
+                      {productTotal}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setProductPage((page) => Math.max(1, page - 1))
+                        }
+                        disabled={productPage === 1 || productsLoading}
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-sea-800 transition hover:bg-sea-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <ChevronLeft size={14} /> Previous
+                      </button>
+                      <span className="text-xs font-medium text-gray-600">
+                        Page {productPage} of{" "}
+                        {Math.ceil(productTotal / productsPerPage)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setProductPage((page) => page + 1)}
+                        disabled={
+                          productPage >=
+                            Math.ceil(productTotal / productsPerPage) ||
+                          productsLoading
+                        }
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-sea-800 transition hover:bg-sea-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Next <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -544,26 +834,45 @@ function AdminDashboardInner() {
                 {recentCustomers.length ? (
                   <div className="divide-y divide-sea-50">
                     {recentCustomers.map((customer) => (
-                      <div key={customer._id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                      <div
+                        key={customer._id}
+                        className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                      >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-sea-900">{customer.name}</p>
-                          <p className="truncate text-xs text-gray-500">{customer.email} · {customer.phone}</p>
+                          <p className="truncate text-sm font-semibold text-sea-900">
+                            {customer.name}
+                          </p>
+                          <p className="truncate text-xs text-gray-500">
+                            {customer.email} · {customer.phone}
+                          </p>
                         </div>
-                        <span className="shrink-0 text-[10px] text-gray-400">{formatDate(customer.createdAt)}</span>
+                        <span className="shrink-0 text-[10px] text-gray-400">
+                          {formatDate(customer.createdAt)}
+                        </span>
                       </div>
                     ))}
                   </div>
-                ) : <p className="text-sm text-gray-500">No customer accounts yet.</p>}
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No customer accounts yet.
+                  </p>
+                )}
               </div>
 
-              <div id="inquiries" className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
+              <div
+                id="inquiries"
+                className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm"
+              >
                 <SectionHeading
                   title="Customer inquiries"
                   description={`${inquiriesData.total || 0} total messages`}
                 />
                 <div className="mb-4 flex flex-wrap gap-2">
                   {safeArray(inquiriesData.statuses).map(({ _id, count }) => (
-                    <span key={_id} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}>
+                    <span
+                      key={_id}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone(_id)}`}
+                    >
                       {_id}: {count}
                     </span>
                   ))}
@@ -571,25 +880,41 @@ function AdminDashboardInner() {
                 {recentInquiries.length ? (
                   <div className="space-y-3">
                     {recentInquiries.map((inquiry) => (
-                      <article key={inquiry._id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                      <article
+                        key={inquiry._id}
+                        className="rounded-xl border border-slate-100 bg-slate-50/70 p-3"
+                      >
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <p className="text-sm font-bold text-sea-900">{inquiry.name}</p>
-                            <p className="text-xs text-gray-500">{inquiry.phone} · {inquiry.district}</p>
+                            <p className="text-sm font-bold text-sea-900">
+                              {inquiry.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {inquiry.phone} · {inquiry.district}
+                            </p>
                           </div>
                           <select
                             value={inquiry.status}
-                            onChange={(event) => handleInquiryStatusChange(inquiry._id, event.target.value)}
+                            onChange={(event) =>
+                              handleInquiryStatusChange(
+                                inquiry._id,
+                                event.target.value,
+                              )
+                            }
                             disabled={updatingInquiryId === inquiry._id}
                             aria-label={`Update inquiry from ${inquiry.name}`}
                             className={`shrink-0 rounded-full border-0 px-2 py-1 text-[10px] font-semibold ${statusTone(inquiry.status)}`}
                           >
                             {["New", "Contacted", "Closed"].map((status) => (
-                              <option key={status} value={status}>{status}</option>
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
                             ))}
                           </select>
                         </div>
-                        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-600">{inquiry.message}</p>
+                        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-600">
+                          {inquiry.message}
+                        </p>
                         <a
                           href={`tel:${inquiry.phone}`}
                           className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-sea-700 hover:text-coral-600"
@@ -599,7 +924,9 @@ function AdminDashboardInner() {
                       </article>
                     ))}
                   </div>
-                ) : <p className="text-sm text-gray-500">No inquiries to show.</p>}
+                ) : (
+                  <p className="text-sm text-gray-500">No inquiries to show.</p>
+                )}
               </div>
             </div>
           </section>
