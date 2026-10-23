@@ -8,6 +8,7 @@ import {
   Package,
   MapPin,
   Calendar,
+  Clock,
   Printer,
   ShoppingBag,
   ShieldCheck,
@@ -20,72 +21,64 @@ import { api } from "@/lib/api";
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const orderIdFromUrl = searchParams.get("order_id");
-  const isPayHereSuccess =
-    searchParams.get("status") === "success" || Boolean(orderIdFromUrl);
 
   const { clearCart } = useCart();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    let orderData = null;
+    let active = true;
+    let storedOrder = null;
     try {
-      orderData = JSON.parse(
+      storedOrder = JSON.parse(
         sessionStorage.getItem("rsn-confirmed-order") ||
           sessionStorage.getItem("rsn-pending-order") ||
           "null",
       );
-    } catch {}
-
-    const orderNumber = orderIdFromUrl || orderData?.orderNumber;
-
-    if (orderNumber) {
-      // Clear cart once payment or order is confirmed
-      clearCart();
-
-      // If redirected from PayHere with success, notify backend to mark paid
-      if (isPayHereSuccess) {
-        api
-          .confirmPayHereSuccess(orderNumber)
-          .then((res) => {
-            if (res?.order) {
-              setOrder(res.order);
-              sessionStorage.setItem("rsn-confirmed-order", JSON.stringify(res.order));
-            }
-          })
-          .catch(() => {
-            // If API call fails (e.g. offline), use locally stored snapshot
-            if (orderData) {
-              setOrder({
-                ...orderData,
-                paymentStatus: "paid",
-                orderStatus: "Confirmed",
-              });
-            }
-          });
-      }
-
-      // If we don't have order details yet, try fetching from backend
-      if (!orderData) {
-        api
-          .getOrder(orderNumber)
-          .then((res) => {
-            if (res?.order) setOrder(res.order);
-          })
-          .catch(() => {})
-          .finally(() => setLoading(false));
-      } else {
-        setOrder(
-          isPayHereSuccess
-            ? { ...orderData, paymentStatus: "paid", orderStatus: "Confirmed" }
-            : orderData,
-        );
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
+    } catch {
+      storedOrder = null;
     }
-  }, [orderIdFromUrl, isPayHereSuccess, clearCart]);
+
+    const orderNumber = orderIdFromUrl || storedOrder?.orderNumber;
+
+    if (!orderNumber) {
+      setLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    api
+      .getOrder(orderNumber)
+      .then((response) => {
+        if (!active || !response?.order) return;
+        setOrder(response.order);
+        setLoadError("");
+        sessionStorage.setItem("rsn-confirmed-order", JSON.stringify(response.order));
+        if (response.order.paymentMethod !== "payhere" || response.order.paymentStatus === "paid") {
+          clearCart();
+        }
+      })
+      .catch((err) => {
+        if (!active) return;
+        setLoadError(err.message || "Order status could not be verified.");
+        if (storedOrder?.orderNumber === orderNumber) {
+          setOrder({
+            ...storedOrder,
+            paymentStatus: storedOrder.paymentMethod === "payhere" ? "pending" : storedOrder.paymentStatus,
+          });
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [orderIdFromUrl, clearCart, refreshKey]);
 
   if (loading) {
     return (
@@ -98,6 +91,9 @@ function ConfirmationContent() {
   }
 
   const displayOrderNumber = order?.orderNumber || orderIdFromUrl;
+  const isPaid = order?.paymentStatus === "paid";
+  const isPayHere = order?.paymentMethod === "payhere";
+  const paymentFailed = order?.paymentStatus === "failed";
 
   if (!displayOrderNumber && !order) {
     return (
@@ -114,9 +110,15 @@ function ConfirmationContent() {
       </section>
     );
   }
-
-  const isPayHere =
-    order?.paymentMethod === "payhere" || isPayHereSuccess || !order?.paymentMethod;
+  if (!order && loadError) {
+    return (
+      <section className="min-h-screen px-4 py-24 text-center">
+        <h1 className="font-display text-3xl font-bold text-sea-950">Order status unavailable</h1>
+        <p role="alert" className="mx-auto mt-3 max-w-lg text-sm text-gray-600">{loadError}</p>
+        <Link href="/profile" className="btn-primary mt-6 inline-flex">View My Orders</Link>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-screen bg-slate-50 px-4 py-12 sm:py-16">
@@ -125,26 +127,43 @@ function ConfirmationContent() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
           {/* Header Banner */}
           <div className="bg-gradient-to-r from-[#04282e] via-[#074751] to-[#04282e] px-6 py-8 text-center text-white sm:px-10">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-8 ring-emerald-500/10">
-              <CheckCircle2 size={48} />
+            <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ring-8 ${
+              isPaid || !isPayHere
+                ? "bg-emerald-500/20 text-emerald-400 ring-emerald-500/10"
+                : "bg-amber-500/20 text-amber-300 ring-amber-500/10"
+            }`}>
+              {isPaid || !isPayHere ? <CheckCircle2 size={48} /> : <Clock size={48} />}
             </div>
             <h1 className="mt-4 font-display text-2xl font-bold sm:text-3xl">
               {isPayHere
-                ? "Payment Successful via PayHere!"
-                : "Order Confirmed!"}
+                ? isPaid
+                  ? "Payment received"
+                  : paymentFailed
+                    ? "Payment failed"
+                    : "Order received — payment pending"
+                : "Order received"}
             </h1>
             <p className="mt-1 text-sm text-teal-100">
               {isPayHere
-                ? "Your payment was approved by PayHere Sandbox. Our Kalpitiya team is preparing your fresh catch."
-                : "Thank you for your order with RSN Sea Food."}
+                ? isPaid
+                  ? "PayHere confirmed your payment. Our Kalpitiya team is preparing your fresh catch."
+                  : paymentFailed
+                    ? "PayHere could not complete this payment. Your cart is still available so you can review your order and try again."
+                    : "We are waiting for PayHere to confirm your payment. This page will not treat a return from the gateway as proof of payment."
+                : "Thank you for your order with RSN Sea Food. Our team will contact you to confirm delivery."}
             </p>
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-teal-200 backdrop-blur">
               <ShieldCheck size={14} className="text-emerald-400" />
-              <span>Merchant ID: 1238347 • Sandbox Verified</span>
+              <span>Payment status is verified securely</span>
             </div>
           </div>
 
           <div className="p-6 sm:p-8 space-y-6">
+            {loadError && (
+              <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                We could not verify the latest order status. This receipt is based on the saved order details; payment remains pending until confirmed by the server.
+              </p>
+            )}
             {/* Order Reference Box */}
             <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-sea-100 bg-sea-50/70 p-4 sm:flex-row">
               <div>
@@ -155,8 +174,14 @@ function ConfirmationContent() {
                   {displayOrderNumber}
                 </p>
               </div>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
-                {isPayHere ? "PAID (Sandbox)" : "CONFIRMED"}
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                isPaid
+                  ? "bg-emerald-100 text-emerald-800"
+                  : paymentFailed
+                    ? "bg-rose-100 text-rose-800"
+                    : "bg-amber-100 text-amber-800"
+              }`}>
+                {`PAYMENT ${String(order?.paymentStatus || "pending").toUpperCase()}`}
               </span>
             </div>
 
@@ -175,8 +200,25 @@ function ConfirmationContent() {
                       : "WhatsApp Order"}
                 </p>
                 <p className="text-slate-400 mt-1">
-                  Status: <span className="text-emerald-600 font-bold">Approved / Paid</span>
+                  Status: <span className={`font-bold ${
+                    isPaid ? "text-emerald-600" : paymentFailed ? "text-rose-700" : "text-amber-700"
+                  }`}>
+                    {String(order?.paymentStatus || "pending").toUpperCase()}
+                  </span>
                 </p>
+                {isPayHere && !isPaid && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoading(true);
+                      setRefreshKey((key) => key + 1);
+                    }}
+                    disabled={loading}
+                    className="mt-3 rounded-lg border border-sea-200 bg-white px-3 py-2 text-xs font-semibold text-sea-800 hover:bg-sea-50 disabled:opacity-50"
+                  >
+                    Refresh payment status
+                  </button>
+                )}
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
@@ -185,7 +227,7 @@ function ConfirmationContent() {
                   <span>Order Date</span>
                 </div>
                 <p className="text-slate-700 font-semibold">
-                  {new Date().toLocaleDateString("en-GB", {
+                  {new Date(order?.createdAt || Date.now()).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -228,9 +270,11 @@ function ConfirmationContent() {
                 </p>
                 <div className="space-y-2 text-xs divide-y divide-slate-100">
                   {order.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between pt-2">
+                    <div key={`${item.name}-${idx}`} className="flex justify-between pt-2">
                       <span className="text-slate-700">
-                        {item.name} <span className="text-slate-400">× {item.quantityKg} kg</span>
+                        {item.name} <span className="text-slate-400">
+                          × {item.quantity || item.quantityKg} {item.sizeLabel || "kg"}
+                        </span>
                       </span>
                       <span className="font-semibold text-slate-900">
                         {formatLKR(item.itemTotal || item.price * item.quantityKg)}
@@ -240,7 +284,7 @@ function ConfirmationContent() {
                 </div>
                 {order?.totalAmount && (
                   <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 text-sm font-bold text-sea-950">
-                    <span>Total Paid</span>
+                    <span>{isPaid ? "Total Paid" : "Order Total"}</span>
                     <span className="font-display text-lg text-coral-600">
                       {formatLKR(order.totalAmount)}
                     </span>
