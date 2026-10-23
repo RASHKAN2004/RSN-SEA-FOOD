@@ -44,9 +44,11 @@ Configuration files that control the business values:
 - Responsive seafood storefront
 - Product catalog with categories and local names
 - Product detail pages with image gallery and quantity controls
+- Searchable product catalog with category and price sorting
 - District-based delivery area selection
 - Shopping cart with totals and delivery fee logic
-- Cash on Delivery, simulated card payment, and WhatsApp ordering
+- PayHere checkout, Cash on Delivery, and WhatsApp ordering
+- Customer profiles with saved delivery details and order history
 - Inquiry form and FAQ section
 - Floating WhatsApp contact button
 - SEO and mobile-friendly layout
@@ -55,7 +57,10 @@ Configuration files that control the business values:
 
 - Admin login and JWT-based authentication
 - Product listing dashboard
+- Sales, order, customer, inquiry, and inventory overview
 - Add, edit, and delete products
+- Search, filter, and paginate the product catalog
+- Update fulfillment and inquiry statuses
 - Product photo upload
 - Price, description, category, and local name management
 - MongoDB-backed product updates
@@ -134,6 +139,11 @@ EMAIL_PORT=587
 EMAIL_USER=your-sending-email@gmail.com
 EMAIL_PASS=your-smtp-app-password
 EMAIL_FROM="RSN Sea Food <your-sending-email@gmail.com>"
+
+# PayHere credentials belong in the backend environment only.
+PAYHERE_MERCHANT_ID=your_payhere_merchant_id
+PAYHERE_MERCHANT_SECRET=your_payhere_merchant_secret
+PAYHERE_CHECKOUT_URL=https://sandbox.payhere.lk/pay/checkout
 ```
 
 Seed the product catalog:
@@ -182,7 +192,10 @@ Create `.env.local` if needed:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 NEXT_PUBLIC_WHATSAPP_NUMBER=94750519450
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+Do not put `PAYHERE_MERCHANT_SECRET` in the frontend environment or expose it with a `NEXT_PUBLIC_` variable. The backend signs PayHere requests and verifies payment notifications.
 
 Start the frontend:
 
@@ -238,8 +251,8 @@ Password must be set in the backend environment file before seeding. The recomme
 
 Supported order methods:
 
+- PayHere (configured by backend credentials)
 - Cash on Delivery
-- Simulated Card Payment
 - WhatsApp Manual Ordering
 
 ---
