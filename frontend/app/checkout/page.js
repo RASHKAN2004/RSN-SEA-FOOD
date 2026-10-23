@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import CryptoJS from "crypto-js";
 import {
   MessageCircle,
   CreditCard,
@@ -24,20 +23,10 @@ import { formatLKR } from "@/data/products";
 import { SRI_LANKA_DISTRICTS, DEFAULT_DISTRICT } from "@/lib/districts";
 import { fullOrderLink } from "@/lib/whatsapp";
 import { api } from "@/lib/api";
-import { signInPath, useCustomerAuth } from "@/lib/useCustomerAuth";
+import { useCustomerAuth } from "@/lib/useCustomerAuth";
 
 const DELIVERY_FREE_THRESHOLD = 5000;
 const DELIVERY_FEE = 350;
-
-// PayHere Sandbox Credentials (ICT2142 Practical 06)
-const PAYHERE_MERCHANT_ID =
-  process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1238347";
-const PAYHERE_MERCHANT_SECRET =
-  process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_SECRET ||
-  "MjY4NTA3MjUxNzE2NTAxOTA5NjAxNjY3Njc3NDg1MjA3OTAyNjQ0Mw==";
-const PAYHERE_CHECKOUT_URL =
-  process.env.NEXT_PUBLIC_PAYHERE_CHECKOUT_URL ||
-  "https://sandbox.payhere.lk/pay/checkout";
 
 const initialForm = {
   fullName: "",
@@ -56,7 +45,7 @@ function CheckoutContent() {
   const { items, subtotal } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useCustomerAuth();
+  const { user } = useCustomerAuth();
 
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
@@ -66,7 +55,8 @@ function CheckoutContent() {
   // PayHere hidden submission form ref
   const payhereFormRef = useRef(null);
   const [payhereData, setPayhereData] = useState({
-    merchant_id: PAYHERE_MERCHANT_ID,
+    merchant_id: "",
+    checkout_url: "",
     return_url: "",
     cancel_url: "",
     notify_url: "",
@@ -96,12 +86,17 @@ function CheckoutContent() {
 
   useEffect(() => {
     if (user) {
+      const address = user.addresses?.[0] || {};
       setForm((prev) => ({
         ...prev,
         fullName: prev.fullName || user.name || "",
         email: prev.email || user.email || "",
         mobile: prev.mobile || user.phone || "",
         whatsapp: prev.whatsapp || user.phone || "",
+        address: prev.address || address.street || "",
+        city: prev.city || address.city || "",
+        district: address.district || prev.district,
+        postalCode: prev.postalCode || address.postalCode || "",
       }));
     }
   }, [user]);
@@ -116,14 +111,6 @@ function CheckoutContent() {
     setTimeout(() => setCopiedCard(""), 2000);
   }
 
-  // PayHere MD5 Hash generator matching Practical 06 Slide 8
-  // Hash = UPPERCASE( MD5( merchant_id + order_id + amount + currency + UPPERCASE( MD5( merchant_secret ) ) ) )
-  function calculatePayHereHash(merchantId, orderId, fmtAmount, currency, secret) {
-    const hashedSecret = CryptoJS.MD5(secret).toString().toUpperCase();
-    const hashString = merchantId + orderId + fmtAmount + currency + hashedSecret;
-    return CryptoJS.MD5(hashString).toString().toUpperCase();
-  }
-
   async function handleCheckout(e) {
     e.preventDefault();
     if (items.length === 0) return;
@@ -135,100 +122,71 @@ function CheckoutContent() {
       const nameParts = form.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "Valued";
       const lastName = nameParts.slice(1).join(" ") || "Customer";
-      const fmtAmount = Number(grandTotal).toFixed(2); // Strict 2 decimal places (Slide 10)
 
-      // Fallback order ID in case network order creation fails
-      const fallbackOrderId = `RSN-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`;
-
-      let createdOrder = null;
-      let orderNumber = fallbackOrderId;
-
-      try {
-        const res = await api.createOrder({
-          customer: {
-            name: form.fullName,
-            phone: form.mobile,
-            whatsapp: form.whatsapp || form.mobile,
-            email,
-          },
-          shippingAddress: {
-            address: form.address,
-            city: form.city,
-            district: form.district,
-            postalCode: form.postalCode,
-            deliveryInstructions: form.instructions,
-            country: "Sri Lanka",
-          },
-          items: items.map((item) => ({
-            slug: item.slug,
-            sizeLabel: item.sizeLabel,
-            quantityKg: item.qty,
-          })),
-          paymentMethod: form.paymentMethod,
-        });
-
-        if (res?.order) {
-          createdOrder = res.order;
-          orderNumber = res.order.orderNumber;
-        }
-      } catch (err) {
-        console.warn("Backend order creation warning (proceeding with gateway):", err);
-      }
-
-      // Order snapshot to save locally
-      const orderSnapshot = createdOrder || {
-        orderNumber,
-        customer: { name: form.fullName, email, phone: form.mobile },
+      const res = await api.createOrder({
+        customer: {
+          name: form.fullName,
+          phone: form.mobile,
+          whatsapp: form.whatsapp || form.mobile,
+          email,
+        },
         shippingAddress: {
           address: form.address,
           city: form.city,
           district: form.district,
+          postalCode: form.postalCode,
+          deliveryInstructions: form.instructions,
+          country: "Sri Lanka",
         },
-        items: items.map((i) => ({
-          name: i.name,
-          quantityKg: i.qty,
-          itemTotal: i.unitPrice * i.qty,
+        items: items.map((item) => ({
+          slug: item.slug,
+          sizeLabel: item.sizeLabel,
+          quantity: item.qty,
         })),
-        totalAmount: grandTotal,
         paymentMethod: form.paymentMethod,
-        paymentStatus: "pending",
-        orderStatus: "Pending",
-      };
+      });
 
-      sessionStorage.setItem("rsn-pending-order", JSON.stringify(orderSnapshot));
-      sessionStorage.setItem("rsn-confirmed-order", JSON.stringify(orderSnapshot));
+      if (!res?.order?.orderNumber) {
+        throw new Error("The order could not be created. Please try again.");
+      }
+
+      const createdOrder = res.order;
+      const orderNumber = createdOrder.orderNumber;
+
+      // Keep the server-created order so a cancelled or interrupted payment can be recovered.
+      sessionStorage.setItem("rsn-pending-order", JSON.stringify(createdOrder));
 
       // 1. IF PAYHERE SANDBOX SELECTED:
       if (form.paymentMethod === "payhere") {
+        if (
+          !res.payhere?.merchantId ||
+          !res.payhere?.hash ||
+          !res.payhere?.checkoutUrl ||
+          !res.payhere?.amount
+        ) {
+          throw new Error("Secure payment details were not returned. Please try again.");
+        }
         const origin = window.location.origin;
         const returnUrl = `${origin}/checkout/confirmation?order_id=${encodeURIComponent(orderNumber)}&status=success`;
         const cancelUrl = `${origin}/checkout?cancelled=true`;
         const notifyUrl = `${process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:5000"}/api/orders/payhere-notify`;
 
-        // Calculate cryptographic MD5 hash (Slide 8)
-        const hash = calculatePayHereHash(
-          PAYHERE_MERCHANT_ID,
-          orderNumber,
-          fmtAmount,
-          "LKR",
-          PAYHERE_MERCHANT_SECRET,
-        );
-
         const itemsSummary =
           items
-            .map((i) => `${i.name} (${i.qty}kg)`)
+            .map((i) => `${i.name} (${i.qty} x ${i.sizeLabel})`)
             .join(", ")
             .slice(0, 100) || "RSN Fresh Seafood Catch";
 
         const pData = {
-          merchant_id: PAYHERE_MERCHANT_ID,
+          merchant_id: res.payhere.merchantId,
+          checkout_url: res.payhere.checkoutUrl,
           return_url: returnUrl,
           cancel_url: cancelUrl,
           notify_url: notifyUrl,
-          order_id: orderNumber,
+          order_id: res.payhere.orderId,
           items: itemsSummary,
-          currency: "LKR",
-          amount: fmtAmount,
+          currency: res.payhere.currency,
+          amount: res.payhere.amount,
           first_name: firstName,
           last_name: lastName,
           email,
@@ -236,7 +194,7 @@ function CheckoutContent() {
           address: form.address.trim(),
           city: form.city.trim(),
           country: "Sri Lanka",
-          hash,
+          hash: res.payhere.hash,
         };
 
         setPayhereData(pData);
@@ -544,11 +502,6 @@ function CheckoutContent() {
                       </div>
                     </div>
                   </div>
-                  <div className="hidden sm:flex flex-col items-end">
-                    <span className="font-mono text-xs font-bold text-sky-700 bg-sky-100/80 px-2 py-0.5 rounded-md">
-                      ID: {PAYHERE_MERCHANT_ID}
-                    </span>
-                  </div>
                 </label>
 
                 {/* 2. CASH ON DELIVERY */}
@@ -606,7 +559,7 @@ function CheckoutContent() {
                 </label>
               </div>
 
-              {/* PAYHERE SANDBOX TEST CARDS HELPER BOX (Practical 06 Slide 9) */}
+              {/* PAYHERE SANDBOX TEST CARDS HELPER BOX */}
               {form.paymentMethod === "payhere" && (
                 <div className="mt-5 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50/90 to-blue-50/60 p-4 sm:p-5">
                   <div className="flex items-center justify-between">
@@ -681,7 +634,7 @@ function CheckoutContent() {
                   </div>
 
                   <p className="mt-2.5 text-[11px] text-slate-500">
-                    🔒 MD5 tamper-proof security hash is automatically calculated according to the Practical 06 specification before submission.
+                    🔒 Payment signing is generated securely by the server before submission.
                   </p>
                 </div>
               )}
@@ -857,7 +810,7 @@ function CheckoutContent() {
           ref={payhereFormRef}
           id="payhere_form"
           method="POST"
-          action={PAYHERE_CHECKOUT_URL}
+          action={payhereData.checkout_url || "https://sandbox.payhere.lk/pay/checkout"}
           className="hidden"
         >
           <input type="hidden" name="merchant_id" id="merchant_id" value={payhereData.merchant_id} />
