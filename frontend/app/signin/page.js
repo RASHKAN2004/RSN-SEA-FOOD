@@ -41,7 +41,15 @@ export default function SignInPage() {
   const [forgotError, setForgotError] = useState("");
 
   useEffect(() => {
-    setNextPath(new URLSearchParams(window.location.search).get("next") || "");
+    const requestedPath = new URLSearchParams(window.location.search).get("next") || "";
+    try {
+      const destination = new URL(requestedPath, window.location.origin);
+      if (destination.origin === window.location.origin) {
+        setNextPath(`${destination.pathname}${destination.search}${destination.hash}`);
+      }
+    } catch {
+      setNextPath("");
+    }
   }, []);
 
   function updateField(event) {
