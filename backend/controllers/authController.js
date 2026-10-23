@@ -11,9 +11,10 @@ const cookieOptions = () => ({
   maxAge: 24 * 60 * 60 * 1000,
 });
 
-function getResetUrl(token) {
+function getResetUrl(token, role) {
   const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
-  return `${baseUrl}/admin/reset-password?token=${token}`;
+  const path = role === "admin" ? "/admin/reset-password" : "/reset-password";
+  return `${baseUrl}${path}?token=${token}`;
 }
 
 async function sendResetEmail(email, resetUrl) {
@@ -43,7 +44,7 @@ async function sendResetEmail(email, resetUrl) {
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #16353d;">
         <h2>Password Reset Request</h2>
-        <p>You requested a password reset for your RSN Sea Food admin account.</p>
+        <p>You requested a password reset for your RSN Sea Food account.</p>
         <p>
           <a href="${resetUrl}" style="display:inline-block;padding:10px 18px;background:#f76a2b;color:#fff;text-decoration:none;border-radius:8px;">
             Reset Password
@@ -150,7 +151,7 @@ async function forgotPassword(req, res, next) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail, role: "admin" });
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       return res.status(200).json({
@@ -168,7 +169,7 @@ async function forgotPassword(req, res, next) {
     user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
 
-    const resetUrl = getResetUrl(token);
+    const resetUrl = getResetUrl(token, user.role);
     await sendResetEmail(user.email, resetUrl);
 
     return res.status(200).json({
@@ -202,7 +203,6 @@ async function resetPassword(req, res, next) {
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
-      role: "admin",
     });
 
     if (!user) {
@@ -221,6 +221,7 @@ async function resetPassword(req, res, next) {
       success: true,
       message:
         "Password reset successful. You can now log in with your new password.",
+      role: user.role,
     });
   } catch (err) {
     next(err);
