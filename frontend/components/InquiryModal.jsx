@@ -28,9 +28,7 @@ export default function InquiryModal({ open, onClose }) {
       await api.createInquiry(form);
       setSubmitted(true);
     } catch (err) {
-      // Still show success UX for demo/offline use, but surface the error
-      setError(err.message);
-      setSubmitted(true);
+      setError(err.message || "Your inquiry could not be submitted. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -57,7 +55,6 @@ export default function InquiryModal({ open, onClose }) {
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="text-sea-600" size={40} />
             <p className="font-semibold text-sea-900">Thank you! We will contact you shortly.</p>
-            {error && <p className="text-xs text-gray-400">(Saved locally — server unreachable: {error})</p>}
             <a
               href={inquiryLink(form)}
               target="_blank"
@@ -70,6 +67,7 @@ export default function InquiryModal({ open, onClose }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
             <input required placeholder="Name" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" value={form.name} onChange={(e) => update('name', e.target.value)} />
             <input required placeholder="Phone Number" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
             <input placeholder="WhatsApp Number" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" value={form.whatsapp} onChange={(e) => update('whatsapp', e.target.value)} />
