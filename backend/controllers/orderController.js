@@ -9,6 +9,13 @@ function generateOrderNumber() {
   return `RSN-${year}-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
 }
 
+function weightInKg(label) {
+  const match = String(label || "").trim().toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(kg|g)$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return match[2] === "kg" ? value : value / 1000;
+}
+
 // PayHere Mandatory MD5 Hash formula (ICT2142 Practical 06 Slide 8):
 // Hash = UPPERCASE( MD5( merchant_id + order_id + amount + currency + UPPERCASE( MD5( merchant_secret ) ) ) )
 function generatePayHereHash({ merchantId, orderId, amount, currency = "LKR", merchantSecret }) {
@@ -108,19 +115,25 @@ async function createOrder(req, res, next) {
         .status(400)
         .json({ success: false, message: "Invalid payment method" });
     }
+    if (paymentMethod === "payhere" && !process.env.PAYHERE_MERCHANT_SECRET) {
+      return res.status(503).json({
+        success: false,
+        message: "Online payment is not configured. Please choose another payment method.",
+      });
+    }
 
     const requestedItems = items.map((item) => ({
       slug: String(item.slug || "").trim(),
-      quantityKg: Number(item.quantityKg),
+      quantity: Number(item.quantity ?? item.quantityKg),
       sizeLabel: String(item.sizeLabel || "").trim(),
     }));
     if (
       requestedItems.some(
         (item) =>
           !item.slug ||
-          !Number.isFinite(item.quantityKg) ||
-          item.quantityKg <= 0 ||
-          item.quantityKg > 100,
+          !Number.isInteger(item.quantity) ||
+          item.quantity <= 0 ||
+          item.quantity > 100,
       )
     ) {
       return res
@@ -146,15 +159,25 @@ async function createOrder(req, res, next) {
       const size =
         product.sizes.find((option) => option.label === item.sizeLabel) ||
         product.sizes[0];
+      const sizeLabel = size?.label || product.minimumQuantity;
+      const packageWeight = weightInKg(sizeLabel) || weightInKg(product.minimumQuantity);
+      if (!packageWeight || packageWeight <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid package size for product: ${item.slug}`,
+        });
+      }
       const price = Math.round(product.price * (size?.priceMultiplier || 1));
       normalizedItems.push({
         productId: product._id,
         name: product.name,
         localName: product.localName,
         image: product.image,
+        sizeLabel,
+        quantity: item.quantity,
         price,
-        quantityKg: item.quantityKg,
-        itemTotal: price * item.quantityKg,
+        quantityKg: Math.round(packageWeight * item.quantity * 1000) / 1000,
+        itemTotal: price * item.quantity,
       });
     }
     const subtotal = normalizedItems.reduce(
@@ -191,24 +214,19 @@ async function createOrder(req, res, next) {
       orderStatus: paymentStatus === "paid" ? "Confirmed" : "Pending",
     });
 
-    const merchantId = process.env.PAYHERE_MERCHANT_ID || "1238347";
-    const merchantSecret =
-      process.env.PAYHERE_MERCHANT_SECRET ||
-      "MjY4NTA3MjUxNzE2NTAxOTA5NjAxNjY3Njc3NDg1MjA3OTAyNjQ0Mw==";
-    const formattedAmount = totalAmount.toFixed(2);
-    const currency = "LKR";
-    const hash = generatePayHereHash({
-      merchantId,
-      orderId: order.orderNumber,
-      amount: totalAmount,
-      currency,
-      merchantSecret,
-    });
-
-    res.status(201).json({
-      success: true,
-      order,
-      payhere: {
+    let payhere;
+    if (paymentMethod === "payhere") {
+      const merchantId = process.env.PAYHERE_MERCHANT_ID || "1238347";
+      const formattedAmount = totalAmount.toFixed(2);
+      const currency = "LKR";
+      const hash = generatePayHereHash({
+        merchantId,
+        orderId: order.orderNumber,
+        amount: totalAmount,
+        currency,
+        merchantSecret: process.env.PAYHERE_MERCHANT_SECRET,
+      });
+      payhere = {
         merchantId,
         orderId: order.orderNumber,
         amount: formattedAmount,
@@ -217,44 +235,17 @@ async function createOrder(req, res, next) {
         checkoutUrl:
           process.env.PAYHERE_CHECKOUT_URL ||
           "https://sandbox.payhere.lk/pay/checkout",
-      },
+      };
+    }
+
+    res.status(201).json({
+      success: true,
+      order,
+      ...(payhere && { payhere }),
     });
   } catch (err) {
     next(err);
   }
-}
-
-// POST /api/orders/payhere-hash
-function getPayHereHash(req, res) {
-  const { orderId, amount, currency = "LKR" } = req.body;
-  if (!orderId || amount === undefined) {
-    return res
-      .status(400)
-      .json({ success: false, message: "orderId and amount are required" });
-  }
-  const merchantId = process.env.PAYHERE_MERCHANT_ID || "1238347";
-  const merchantSecret =
-    process.env.PAYHERE_MERCHANT_SECRET ||
-    "MjY4NTA3MjUxNzE2NTAxOTA5NjAxNjY3Njc3NDg1MjA3OTAyNjQ0Mw==";
-  const formattedAmount = Number(amount).toFixed(2);
-  const hash = generatePayHereHash({
-    merchantId,
-    orderId,
-    amount: formattedAmount,
-    currency,
-    merchantSecret,
-  });
-  res.json({
-    success: true,
-    merchantId,
-    orderId,
-    amount: formattedAmount,
-    currency,
-    hash,
-    checkoutUrl:
-      process.env.PAYHERE_CHECKOUT_URL ||
-      "https://sandbox.payhere.lk/pay/checkout",
-  });
 }
 
 // POST /api/orders/payhere-notify (PayHere IPN Webhook)
@@ -270,9 +261,10 @@ async function handlePayHereNotify(req, res, next) {
       md5sig,
     } = req.body;
 
-    const merchantSecret =
-      process.env.PAYHERE_MERCHANT_SECRET ||
-      "MjY4NTA3MjUxNzE2NTAxOTA5NjAxNjY3Njc3NDg1MjA3OTAyNjQ0Mw==";
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    if (!merchantSecret) {
+      return res.status(503).send("Payment gateway is not configured");
+    }
     const hashedSecret = crypto
       .createHash("md5")
       .update(merchantSecret)
@@ -286,7 +278,15 @@ async function handlePayHereNotify(req, res, next) {
       .digest("hex")
       .toUpperCase();
 
-    if (expectedHash !== String(md5sig).toUpperCase()) {
+    const receivedHash = String(md5sig || "").toUpperCase();
+    const validSignature =
+      /^[0-9A-F]{32}$/.test(receivedHash) &&
+      crypto.timingSafeEqual(
+        Buffer.from(expectedHash, "hex"),
+        Buffer.from(receivedHash, "hex"),
+      );
+    const expectedMerchantId = process.env.PAYHERE_MERCHANT_ID || "1238347";
+    if (!validSignature || String(merchant_id) !== expectedMerchantId) {
       console.warn("[PayHere IPN] Invalid MD5 signature verification failed");
       return res.status(400).send("Invalid signature");
     }
@@ -296,6 +296,14 @@ async function handlePayHereNotify(req, res, next) {
       console.warn(`[PayHere IPN] Order not found: ${order_id}`);
       return res.status(404).send("Order not found");
     }
+    if (
+      order.paymentMethod !== "payhere" ||
+      String(payhere_currency) !== "LKR" ||
+      Number(payhere_amount).toFixed(2) !== order.totalAmount.toFixed(2)
+    ) {
+      console.warn(`[PayHere IPN] Payment details do not match order ${order_id}`);
+      return res.status(400).send("Payment details do not match order");
+    }
 
     order.payherePaymentId = payment_id;
     order.payhereStatusCode = String(status_code);
@@ -303,9 +311,9 @@ async function handlePayHereNotify(req, res, next) {
     if (Number(status_code) === 2) {
       order.paymentStatus = "paid";
       order.orderStatus = "Confirmed";
-    } else if (Number(status_code) === 0) {
+    } else if (Number(status_code) === 0 && order.paymentStatus !== "paid") {
       order.paymentStatus = "pending";
-    } else {
+    } else if (order.paymentStatus !== "paid") {
       order.paymentStatus = "failed";
     }
 
@@ -314,30 +322,6 @@ async function handlePayHereNotify(req, res, next) {
       `[PayHere IPN] Order ${order_id} updated: status=${order.paymentStatus}`,
     );
     res.status(200).send("OK");
-  } catch (err) {
-    next(err);
-  }
-}
-
-// PATCH /api/orders/:orderNumber/payhere-success
-async function confirmPayHereSuccess(req, res, next) {
-  try {
-    const { orderNumber } = req.params;
-    const order = await Order.findOne({ orderNumber });
-    if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
-    }
-    order.paymentStatus = "paid";
-    if (order.orderStatus === "Pending") {
-      order.orderStatus = "Confirmed";
-    }
-    if (req.body?.paymentId) {
-      order.payherePaymentId = req.body.paymentId;
-    }
-    await order.save();
-    res.json({ success: true, order });
   } catch (err) {
     next(err);
   }
@@ -405,6 +389,5 @@ module.exports = {
   updateOrderStatus,
   getPayHereHash,
   handlePayHereNotify,
-  confirmPayHereSuccess,
   generatePayHereHash,
 };
