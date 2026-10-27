@@ -347,9 +347,11 @@ function AdminDashboardInner() {
   const productsData = data?.products ?? {};
   const customersData = data?.customers ?? {};
   const inquiriesData = data?.inquiries ?? {};
+  const feedbackData = data?.feedback ?? {};
   const recentOrders = safeArray(ordersData.recent);
   const recentCustomers = safeArray(customersData.recent);
   const recentInquiries = safeArray(inquiriesData.recent);
+  const recentFeedback = safeArray(feedbackData.recent);
   const topProducts = safeArray(ordersData.topProducts);
   const maxTopProductQuantity = Math.max(
     1,
@@ -608,6 +610,50 @@ function AdminDashboardInner() {
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-sea-100 bg-white p-5 shadow-sm">
+              <SectionHeading
+                title="Customer feedback"
+                description={`${feedbackData.total || 0} total submissions`}
+              />
+              {recentFeedback.length ? (
+                <div className="space-y-3">
+                  {recentFeedback.map((feedback) => (
+                    <article
+                      key={feedback._id}
+                      className="rounded-xl border border-slate-100 bg-slate-50/70 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-bold text-sea-900">
+                            {feedback.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {feedback.location || "Location not provided"} ·{" "}
+                            {formatDate(feedback.createdAt)}
+                          </p>
+                        </div>
+                        <div
+                          className="flex shrink-0 items-center gap-0.5 text-amber-400"
+                          aria-label={`${feedback.rating} out of 5 stars`}
+                        >
+                          {Array.from({ length: feedback.rating }, (_, index) => (
+                            <span key={index}>★</span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-gray-600">
+                        {feedback.message}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No customer feedback yet.
+                </p>
+              )}
             </div>
           </section>
 

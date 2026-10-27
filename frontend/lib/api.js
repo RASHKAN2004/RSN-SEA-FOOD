@@ -65,6 +65,8 @@ export const api = {
     request("/orders/email-otp/verify", { method: "POST", body: JSON.stringify(payload) }),
   createInquiry: (payload) =>
     request("/inquiries", { method: "POST", body: JSON.stringify(payload) }),
+  createFeedback: (payload) =>
+    request("/feedback", { method: "POST", body: JSON.stringify(payload) }),
   register: (payload) =>
     request("/auth/register", {
       method: "POST",

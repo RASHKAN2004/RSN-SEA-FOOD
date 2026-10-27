@@ -18,6 +18,7 @@ import {
   Package,
   PhoneCall,
   Search,
+  Send,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -33,6 +34,7 @@ import { useProducts } from "@/lib/useProducts";
 import { generalOrderLink, WHATSAPP_DISPLAY } from "@/lib/whatsapp";
 import { SRI_LANKA_DISTRICTS, DEFAULT_DISTRICT } from "@/lib/districts";
 import { useLanguage } from "@/context/LanguageContext";
+import { api } from "@/lib/api";
 
 const benefits = [
   {
@@ -167,6 +169,36 @@ export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [selectedDistrict, setSelectedDistrict] = useState(DEFAULT_DISTRICT);
   const [activeFilterTab, setActiveFilterTab] = useState("all");
+  const [feedbackForm, setFeedbackForm] = useState({
+    name: "",
+    location: "",
+    rating: 5,
+    message: "",
+  });
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [feedbackNotice, setFeedbackNotice] = useState(null);
+
+  async function handleFeedbackSubmit(event) {
+    event.preventDefault();
+    setFeedbackSending(true);
+    setFeedbackNotice(null);
+
+    try {
+      const result = await api.createFeedback(feedbackForm);
+      setFeedbackForm({ name: "", location: "", rating: 5, message: "" });
+      setFeedbackNotice({
+        type: "success",
+        message: result.message || "Thank you for sharing your feedback!",
+      });
+    } catch (error) {
+      setFeedbackNotice({
+        type: "error",
+        message: error.message || "Feedback could not be sent. Please try again.",
+      });
+    } finally {
+      setFeedbackSending(false);
+    }
+  }
 
   useEffect(() => {
     const revealItems = homeRef.current?.querySelectorAll("[data-reveal]");
@@ -856,6 +888,126 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
+          </div>
+
+          <div className="mx-auto mt-12 max-w-3xl rounded-[1.8rem] border border-sea-100 bg-white p-6 shadow-sm sm:p-8">
+            <div className="mb-6 text-center">
+              <h3 className="font-display text-xl font-bold text-sea-950">
+                Share Your Feedback
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Tell us about your experience with RSN Sea Food.
+              </p>
+            </div>
+
+            <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-sea-900">
+                  Your name
+                  <input
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    value={feedbackForm.name}
+                    onChange={(event) =>
+                      setFeedbackForm((form) => ({
+                        ...form,
+                        name: event.target.value,
+                      }))
+                    }
+                    autoComplete="name"
+                    placeholder="Enter your name"
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-gray-800 outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                  />
+                </label>
+                <label className="text-sm font-semibold text-sea-900">
+                  City or district <span className="font-normal text-gray-400">(optional)</span>
+                  <input
+                    maxLength={80}
+                    value={feedbackForm.location}
+                    onChange={(event) =>
+                      setFeedbackForm((form) => ({
+                        ...form,
+                        location: event.target.value,
+                      }))
+                    }
+                    autoComplete="address-level2"
+                    placeholder="e.g. Colombo"
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-gray-800 outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                  />
+                </label>
+              </div>
+
+              <fieldset>
+                <legend className="text-sm font-semibold text-sea-900">
+                  Your rating
+                </legend>
+                <div className="mt-2 flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <button
+                      key={rating}
+                      type="button"
+                      onClick={() =>
+                        setFeedbackForm((form) => ({ ...form, rating }))
+                      }
+                      aria-label={`${rating} star${rating === 1 ? "" : "s"}`}
+                      aria-pressed={feedbackForm.rating === rating}
+                      className="rounded p-1 transition hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sea-600"
+                    >
+                      <Star
+                        size={25}
+                        className={
+                          rating <= feedbackForm.rating
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-300"
+                        }
+                      />
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+
+              <label className="block text-sm font-semibold text-sea-900">
+                Your feedback
+                <textarea
+                  required
+                  minLength={5}
+                  maxLength={1000}
+                  rows={4}
+                  value={feedbackForm.message}
+                  onChange={(event) =>
+                    setFeedbackForm((form) => ({
+                      ...form,
+                      message: event.target.value,
+                    }))
+                  }
+                  placeholder="Type your feedback here..."
+                  className="mt-1.5 w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-gray-800 outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                />
+              </label>
+
+              {feedbackNotice && (
+                <p
+                  role={feedbackNotice.type === "error" ? "alert" : "status"}
+                  className={`rounded-xl px-4 py-3 text-sm ${
+                    feedbackNotice.type === "error"
+                      ? "bg-rose-50 text-rose-700"
+                      : "bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  {feedbackNotice.message}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={feedbackSending}
+                className="btn-primary inline-flex w-full items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                <Send size={16} />
+                {feedbackSending ? "Sending..." : "Send Feedback"}
+              </button>
+            </form>
           </div>
         </div>
       </section>

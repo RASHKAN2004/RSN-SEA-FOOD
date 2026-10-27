@@ -1,4 +1,5 @@
 const Inquiry = require("../models/Inquiry");
+const Feedback = require("../models/Feedback");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
@@ -25,6 +26,8 @@ async function getDashboard(req, res, next) {
       inquiryCount,
       inquiryStatuses,
       recentInquiries,
+      feedbackCount,
+      recentFeedback,
     ] = await Promise.all([
       Order.countDocuments(),
       Order.aggregate([
@@ -101,6 +104,12 @@ async function getDashboard(req, res, next) {
         .sort({ createdAt: -1 })
         .limit(5)
         .lean(),
+      Feedback.countDocuments(),
+      Feedback.find()
+        .select("name location rating message createdAt")
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean(),
     ]);
 
     res.json({
@@ -130,6 +139,10 @@ async function getDashboard(req, res, next) {
           total: inquiryCount,
           statuses: inquiryStatuses,
           recent: recentInquiries,
+        },
+        feedback: {
+          total: feedbackCount,
+          recent: recentFeedback,
         },
       },
     });
