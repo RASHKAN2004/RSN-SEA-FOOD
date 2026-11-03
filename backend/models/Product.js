@@ -8,6 +8,14 @@ const SizeOptionSchema = new mongoose.Schema(
   { _id: false },
 );
 
+const PriceHistorySchema = new mongoose.Schema(
+  {
+    effectiveDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+    price: { type: Number, required: true, min: 0 },
+  },
+  { _id: false },
+);
+
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true }, // e.g. "Barramundi"
@@ -39,6 +47,7 @@ const ProductSchema = new mongoose.Schema(
     gallery: [{ type: String }],
     minimumQuantity: { type: String, default: "500g" }, // display label
     price: { type: Number, required: true, min: 0 }, // starting price (LKR) per minimumQuantity
+    priceHistory: { type: [PriceHistorySchema], default: [] },
     unit: { type: String, default: "kg" },
     sizes: [SizeOptionSchema],
     freshnessGrade: {
