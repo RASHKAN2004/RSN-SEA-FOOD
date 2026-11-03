@@ -4,6 +4,7 @@ const {
   getProductBySlug,
   createProduct,
   updateProduct,
+  setProductPrice,
   deleteProduct,
   getCategories,
 } = require('../controllers/productController');
@@ -15,6 +16,7 @@ router.get('/', getProducts);
 router.get('/meta/categories', getCategories);
 router.get('/:slug', getProductBySlug);
 router.post('/', protect, adminOnly, createProduct);
+router.put('/:id/price', protect, adminOnly, setProductPrice);
 router.put('/:id', protect, adminOnly, updateProduct);
 router.delete('/:id', protect, adminOnly, deleteProduct);
 
