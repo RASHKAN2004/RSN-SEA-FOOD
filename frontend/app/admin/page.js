@@ -112,6 +112,17 @@ function formatDate(value) {
     : "—";
 }
 
+function getSriLankaDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Colombo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -134,6 +145,10 @@ function AdminDashboardInner() {
   const [productCategories, setProductCategories] = useState([]);
   const [productSearch, setProductSearch] = useState("");
   const [productCategory, setProductCategory] = useState("");
+  const [priceDate, setPriceDate] = useState(getSriLankaDate);
+  const [priceDrafts, setPriceDrafts] = useState({});
+  const [priceMessage, setPriceMessage] = useState("");
+  const [savingPriceId, setSavingPriceId] = useState(null);
   const [productPage, setProductPage] = useState(1);
   const [productTotal, setProductTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -174,6 +189,7 @@ function AdminDashboardInner() {
           api.getProducts({
             limit: productsPerPage,
             page: productPage,
+            priceDate,
             ...(productSearch.trim() ? { search: productSearch.trim() } : {}),
             ...(productCategory ? { category: productCategory } : {}),
           }),
@@ -185,10 +201,17 @@ function AdminDashboardInner() {
         if (productsResult.status === "rejected") {
           throw productsResult.reason;
         }
-        setProducts(
-          Array.isArray(productsResult.value?.products)
-            ? productsResult.value.products
-            : [],
+        const loadedProducts = Array.isArray(productsResult.value?.products)
+          ? productsResult.value.products
+          : [];
+        setProducts(loadedProducts);
+        setPriceDrafts(
+          Object.fromEntries(
+            loadedProducts.map((product) => [
+              product._id || product.id || product.slug,
+              String(product.price ?? ""),
+            ]),
+          ),
         );
         setProductTotal(Number(productsResult.value?.total) || 0);
         if (
@@ -217,10 +240,58 @@ function AdminDashboardInner() {
     productCategory,
     productPage,
     productSearch,
+    priceDate,
     productCategories.length,
     productsPerPage,
     productsRefreshKey,
   ]);
+
+  async function handlePriceSave(product) {
+    const productId = product._id || product.id;
+    if (!productId) {
+      setProductError("This product is missing an id and its price cannot be saved.");
+      return;
+    }
+    const priceValue = priceDrafts[productId];
+    const price = Number(priceValue);
+    if (
+      priceValue === "" ||
+      !Number.isFinite(price) ||
+      price < 0
+    ) {
+      setProductError("Enter a valid non-negative price.");
+      return;
+    }
+
+    setSavingPriceId(productId);
+    setProductError("");
+    setPriceMessage("");
+    try {
+      const response = await api.adminSetProductPrice(
+        productId,
+        priceDate,
+        price,
+      );
+      const savedPrice = Number(response.product?.price);
+      setProducts((current) =>
+        current.map((item) =>
+          (item._id || item.id || item.slug) ===
+          (product._id || product.id || product.slug)
+            ? { ...item, price: savedPrice }
+            : item,
+        ),
+      );
+      setPriceDrafts((current) => ({
+        ...current,
+        [productId]: String(savedPrice),
+      }));
+      setPriceMessage(`Saved ${product.name} price for ${priceDate}.`);
+    } catch (err) {
+      setProductError(err.message || "Price could not be saved.");
+    } finally {
+      setSavingPriceId(null);
+    }
+  }
 
   async function handleDelete(product) {
     const productId = product?._id || product?.id || product?.slug;
@@ -699,7 +770,7 @@ function AdminDashboardInner() {
                 </p>
               )}
               <div id="products" className="overflow-x-auto">
-                <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(170px,220px)]">
+                <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(170px,220px)_minmax(160px,190px)]">
                   <label className="relative block">
                     <Search
                       size={16}
@@ -736,7 +807,27 @@ function AdminDashboardInner() {
                       </option>
                     ))}
                   </select>
+                  <label className="block">
+                    <span className="sr-only">Filter prices by date</span>
+                    <input
+                      type="date"
+                      value={priceDate}
+                      onChange={(event) => {
+                        if (event.target.value) {
+                          setPriceDate(event.target.value);
+                          setPriceMessage("");
+                        }
+                        setProductPage(1);
+                      }}
+                      disabled={Boolean(savingPriceId)}
+                      aria-label="Filter prices by date"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-sea-500 focus:ring-2 focus:ring-sea-100"
+                    />
+                  </label>
                 </div>
+                <p className="mb-3 text-xs text-gray-500">
+                  Prices are effective from the selected date until another price is set.
+                </p>
                 {productError && (
                   <p
                     role="alert"
@@ -745,13 +836,21 @@ function AdminDashboardInner() {
                     {productError}
                   </p>
                 )}
+                {priceMessage && (
+                  <p
+                    role="status"
+                    className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700"
+                  >
+                    {priceMessage}
+                  </p>
+                )}
                 {products.length ? (
-                  <table className="w-full min-w-[500px] text-left text-xs">
+                  <table className="w-full min-w-[650px] text-left text-xs">
                     <thead className="border-b border-sea-100 text-[10px] uppercase text-gray-500">
                       <tr>
                         <th className="py-2 pr-3">Product</th>
                         <th className="py-2 pr-3">Category</th>
-                        <th className="py-2 pr-3">Price</th>
+                        <th className="py-2 pr-3">Price (LKR) · {priceDate}</th>
                         <th className="py-2 pr-3">Stock</th>
                         <th className="py-2">Availability</th>
                         <th className="py-2 text-right">Actions</th>
@@ -784,8 +883,39 @@ function AdminDashboardInner() {
                             <td className="py-2.5 pr-3 text-gray-600">
                               {product.category}
                             </td>
-                            <td className="py-2.5 pr-3 font-semibold text-gray-700">
-                              {formatLKR(product.price)}
+                            <td className="py-2.5 pr-3">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={priceDrafts[productId] ?? ""}
+                                  onChange={(event) => {
+                                    setPriceMessage("");
+                                    setProductError("");
+                                    setPriceDrafts((current) => ({
+                                      ...current,
+                                      [productId]: event.target.value,
+                                    }));
+                                  }}
+                                  disabled={productsLoading || Boolean(savingPriceId)}
+                                  aria-label={`Price for ${product.name} on ${priceDate}`}
+                                  className="w-28 rounded-lg border border-slate-200 px-2 py-1.5 font-semibold text-gray-700 outline-none focus:border-sea-500 disabled:opacity-50"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handlePriceSave(product)}
+                                  disabled={
+                                    productsLoading ||
+                                    Boolean(savingPriceId)
+                                  }
+                                  className="rounded-lg bg-sea-50 px-2.5 py-1.5 font-semibold text-sea-700 hover:bg-sea-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {savingPriceId === (product._id || product.id)
+                                    ? "Saving…"
+                                    : "Save"}
+                                </button>
+                              </div>
                             </td>
                             <td className="py-2.5 pr-3 text-gray-600">
                               {product.stockKg ?? 0} kg
