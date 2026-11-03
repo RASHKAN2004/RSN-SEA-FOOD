@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const CheckoutEmailOtp = require("../models/CheckoutEmailOtp");
+const { getPriceForDate, getSriLankaDate } = require("../utils/productPricing");
 
 function generateOrderNumber() {
   const year = new Date().getFullYear();
@@ -147,6 +148,7 @@ async function createOrder(req, res, next) {
     const productBySlug = new Map(
       products.map((product) => [product.slug, product]),
     );
+    const pricingDate = getSriLankaDate();
     const normalizedItems = [];
     for (const item of requestedItems) {
       const product = productBySlug.get(item.slug);
@@ -167,7 +169,9 @@ async function createOrder(req, res, next) {
           message: `Invalid package size for product: ${item.slug}`,
         });
       }
-      const price = Math.round(product.price * (size?.priceMultiplier || 1));
+      const price = Math.round(
+        getPriceForDate(product, pricingDate) * (size?.priceMultiplier || 1),
+      );
       normalizedItems.push({
         productId: product._id,
         name: product.name,

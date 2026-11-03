@@ -1,4 +1,9 @@
 const Product = require("../models/Product");
+const {
+  getPriceForDate,
+  getSriLankaDate,
+  isValidDateKey,
+} = require("../utils/productPricing");
 
 function escapeRegex(value) {
   return String(value)
@@ -10,6 +15,13 @@ function escapeRegex(value) {
 async function getProducts(req, res, next) {
   try {
     const { category, search, minPrice, maxPrice, sort, featured } = req.query;
+    const priceDate = req.query.priceDate || getSriLankaDate();
+    if (!isValidDateKey(priceDate)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid price date. Use YYYY-MM-DD.",
+      });
+    }
     const page = Math.max(
       1,
       Math.min(1000, Number.parseInt(req.query.page || "1", 10) || 1),
@@ -21,14 +33,6 @@ async function getProducts(req, res, next) {
     const filter = {};
     if (category) filter.category = category;
     if (featured) filter.featured = featured === "true";
-    if (minPrice || maxPrice) {
-      const minimum = minPrice === undefined ? undefined : Number(minPrice);
-      const maximum = maxPrice === undefined ? undefined : Number(maxPrice);
-      if (minimum !== undefined && Number.isFinite(minimum) && minimum >= 0)
-        filter.price = { $gte: minimum };
-      if (maximum !== undefined && Number.isFinite(maximum) && maximum >= 0)
-        filter.price = { ...(filter.price || {}), $lte: maximum };
-    }
     if (search) {
       filter.$or = [
         { name: { $regex: escapeRegex(search), $options: "i" } },
@@ -38,15 +42,54 @@ async function getProducts(req, res, next) {
     }
 
     const normalizedSort = (sort || "").replace(/-/g, "_");
-    let query = Product.find(filter);
-    if (normalizedSort === "price_asc") query = query.sort({ price: 1 });
-    else if (normalizedSort === "price_desc") query = query.sort({ price: -1 });
-    else query = query.sort({ createdAt: -1 });
+    const minimumPrice =
+      minPrice !== undefined && minPrice !== "" ? Number(minPrice) : null;
+    const maximumPrice =
+      maxPrice !== undefined && maxPrice !== "" ? Number(maxPrice) : null;
+    const hasPriceFilter =
+      (Number.isFinite(minimumPrice) && minimumPrice >= 0) ||
+      (Number.isFinite(maximumPrice) && maximumPrice >= 0);
+    const sortByPrice = ["price_asc", "price_desc"].includes(normalizedSort);
+    let products;
+    let total;
 
-    const [products, total] = await Promise.all([
-      query.skip((page - 1) * limit).limit(limit),
-      Product.countDocuments(filter),
-    ]);
+    if (hasPriceFilter || sortByPrice) {
+      const candidates = (await Product.find(filter).sort({ createdAt: -1 }))
+        .map((product) => ({
+          ...product.toObject(),
+          price: getPriceForDate(product, priceDate),
+        }))
+        .filter(
+          (product) =>
+            (!Number.isFinite(minimumPrice) ||
+              minimumPrice < 0 ||
+              product.price >= minimumPrice) &&
+            (!Number.isFinite(maximumPrice) ||
+              maximumPrice < 0 ||
+              product.price <= maximumPrice),
+        );
+      if (normalizedSort === "price_asc") {
+        candidates.sort((left, right) => left.price - right.price);
+      } else if (normalizedSort === "price_desc") {
+        candidates.sort((left, right) => right.price - left.price);
+      }
+      total = candidates.length;
+      products = candidates.slice((page - 1) * limit, page * limit);
+    } else {
+      const [pageProducts, productTotal] = await Promise.all([
+        Product.find(filter)
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit),
+        Product.countDocuments(filter),
+      ]);
+      products = pageProducts.map((product) => ({
+        ...product.toObject(),
+        price: getPriceForDate(product, priceDate),
+      }));
+      total = productTotal;
+    }
+
     res.json({
       success: true,
       count: products.length,
@@ -73,7 +116,13 @@ async function getProductBySlug(req, res, next) {
         .status(404)
         .json({ success: false, message: "Product not found" });
     }
-    res.json({ success: true, product });
+    res.json({
+      success: true,
+      product: {
+        ...product.toObject(),
+        price: getPriceForDate(product),
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -92,7 +141,25 @@ async function createProduct(req, res, next) {
 // PUT /api/products/:id (admin)
 async function updateProduct(req, res, next) {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const updates = { ...req.body };
+    if (Object.prototype.hasOwnProperty.call(updates, "price")) {
+      const effectiveDate = getSriLankaDate();
+      const effectivePrice = updates.price;
+      delete updates.price;
+      const product = await Product.findById(req.params.id);
+      if (!product) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Product not found" });
+      }
+      const priceHistory = product.priceHistory.filter(
+        (entry) => entry.effectiveDate !== effectiveDate,
+      );
+      priceHistory.push({ effectiveDate, price: effectivePrice });
+      updates.priceHistory = priceHistory;
+    }
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     });
@@ -101,6 +168,47 @@ async function updateProduct(req, res, next) {
         .status(404)
         .json({ success: false, message: "Product not found" });
     res.json({ success: true, product });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PUT /api/products/:id/price (admin)
+async function setProductPrice(req, res, next) {
+  try {
+    const { effectiveDate, price } = req.body || {};
+    if (
+      !isValidDateKey(effectiveDate) ||
+      typeof price !== "number" ||
+      !Number.isFinite(price) ||
+      price < 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid date (YYYY-MM-DD) and non-negative price are required.",
+      });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+    const priceHistory = product.priceHistory.filter(
+      (entry) => entry.effectiveDate !== effectiveDate,
+    );
+    priceHistory.push({ effectiveDate, price });
+    product.priceHistory = priceHistory;
+    await product.save();
+
+    res.json({
+      success: true,
+      product: {
+        ...product.toObject(),
+        price: getPriceForDate(product, effectiveDate),
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -135,6 +243,7 @@ module.exports = {
   getProductBySlug,
   createProduct,
   updateProduct,
+  setProductPrice,
   deleteProduct,
   getCategories,
 };
