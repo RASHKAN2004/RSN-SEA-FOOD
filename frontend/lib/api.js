@@ -100,6 +100,11 @@ export const api = {
       method: "PUT",
       body: JSON.stringify(payload),
     }),
+  adminSetProductPrice: (id, effectiveDate, price) =>
+    request(`/products/${id}/price`, {
+      method: "PUT",
+      body: JSON.stringify({ effectiveDate, price }),
+    }),
   adminDeleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
 
   // Admin: image upload (multipart, no JSON content-type header)
